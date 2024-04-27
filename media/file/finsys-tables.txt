@@ -1,0 +1,35 @@
+Salary Details : Holiday and Attendance details needed in salary details.
+-------------------------------
+Company - FK
+Login Details - FK 
+Employee Name - Character 
+Employee Email - Email
+Employee ID - Character
+ Designation - Character
+ Fixed Salary - Number
+ Date of Joining - Date
+Employee - FK
+Salary Date - Date
+ Casual Leave - Number 
+Month - Character
+Year - Number 
+Leave - Number
+Basic Salary- Number
+ Conveyance Allowance – Number
+ HRA – Number
+Other Allowance – Number
+ Total Working Days – Number 
+Other Cuttings – Number
+Add Bonus - Number 
+Holiday - Number
+Salary - Number
+ 
+Status(Save Or Draft) - Character 
+
+Salary Details History
+---------------------------------
+Company - FK
+Login Details - FK 
+Salary Details – FK
+Date (Current Date) – Date
+Action (Created or Edited) – Character

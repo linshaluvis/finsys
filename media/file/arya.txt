@@ -1,0 +1,202 @@
+
+<style>
+    #printContent
+    {
+        background-color: rgba(255, 255, 255, 0.926);
+        padding: 40px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #whatToPrint
+    {
+        border: 1px solid #000000;
+        width: 75%;
+        
+    }
+    #whatToPrint h1{
+        font-size: 23px;
+        text-align: center;
+        letter-spacing: 1px;
+        color: #161515;
+        font-weight: 600;
+        padding-top: 10px;
+        font-family:Georgia, 'Times New Roman', Times, serif
+    }
+    .employee-details
+    {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-top: 1.3px solid #000000d9;
+        padding: 3rem 0.10rem;
+        border-bottom: 1.3px solid #000000d9;
+        color: #000000;
+    }
+    .employee-details ul li{
+        list-style: none;
+        padding-top: 12px;
+        font-size: 13px;
+        letter-spacing: 1px;
+        display: grid;
+        grid-template-columns: 2fr 0.20fr 2fr;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        font-weight: 600;
+        font-family:'Courier New', Courier, monospace
+    }
+    .employee-details ul li span{
+        text-align:start;
+    }
+    .salary-section h3{
+        font-size: 14px;
+        text-align: center;
+        letter-spacing: 1px;
+        color: #1f1d1dd4;
+        font-weight: 600;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        font-family:Georgia, 'Times New Roman', Times, serif;
+        text-transform: uppercase;
+    }
+    .table
+    {
+        border-top: 1px solid #161515;
+        border-bottom: 1px solid #161515;
+        color: #2d2d2d;
+    }
+    .table tr td,
+    .table tr th{
+        border-right: 1px solid #161515;
+    }
+    .table tr td:nth-child(2)
+    {
+        text-align: center;
+    }
+    .table tr td:last-child{
+        border-right: none;
+        text-align: center;
+    }
+    .authorization-section
+    {
+        display: grid;
+        grid-template-columns: 2fr 0.80fr;
+        padding: 20px;
+    }
+    .authorization-seal
+    {
+        text-align: center;
+        padding: 1rem;
+    }
+    .authorization-sign img{
+        padding-top: 1rem;
+    }
+    .authorization-sign p{
+     color: #161515;
+     font-size: 12px;
+     padding-top: 18px;
+     font-weight: 500;
+
+    }
+</style>
+
+<div id="transaction" class="container" style="display: none;">
+    <div id="printContent">
+        <!-- <h3 class="mt-3">Mr Shebin Shaji</h3> -->
+            
+        <div id="whatToPrint" class="print-only">
+            <div class="page" size="A4" >
+            
+                <h1>PAYSLIP</h1>
+             
+                <div class="employee-details">
+                    <div>
+                        <ul>
+                            <li><span>Employee Name</span><span>:</span><span> Mr Shebin Shaji</span></li>
+                            <li><span>Employee Code</span><span>:</span><span> EMP7876</span></li>
+                            <li><span>Month-Year</span><span>:</span><span> April-2024</span></li>
+                            <li><span>Designation</span><span>:</span><span> Developer</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul>
+                            <li><span>Location</span><span>:</span><span>Kottayam</span> </li>
+                            <li><span>Date of Joining</span><span>:</span><span> 12/02/2022</span></li>
+                            <li><span>Working Days</span><span>:</span><span>25</span> </li>
+                            <li><span>Leave</span><span>:</span> <span>1</span> </li>
+                            
+                        </ul>
+                    </div>
+                </div>
+                <div class="salary-section">
+                    <h3>Confirmed Salary</h3>
+                    
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Particulars</th>
+                                <th>Gross Amount (Rs)</th>
+                                <th>Deduction Amount (Rs)</th>
+                                <th>Amount (Rs)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <p>Basic Salary</p>
+                                    <p>Conveyance Allowance</p>
+                                    <p>HRA</p>
+                                    <p>Other Allowance</p>
+                                    <p>Bonus</p>
+                                </td>
+                                <td >
+                                    <p>120000</p>
+                                    <p>2000</p>
+                                    <p>3000</p>
+                                    <p>150</p>
+                                    <p>100</p>
+                                </td>
+                                <td>
+                                    <p>Leave Deduction</p>
+                                </td>
+                                <td>
+                                    <p>200</p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td style="height: 50px;">Total Deduction</td>
+                                <td style="height: 50px;">100</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="height: 50px;">Netsalary</td>
+                                <!-- <td style="height: 50px;" id="salaryCell">15100</td> -->
+                                <td style="height: 50px;">15100</td>
+                            </tr>
+                        </tbody>
+                    </table>
+               
+                </div>
+                <div class="authorization-section">
+                    <div class="authorization-seal">
+                        <img src="" alt="Company Seal" style="max-width: 150px;">
+                    </div>
+                    <div class="authorization-sign">
+                        <div style="display: flex; justify-content: flex-end;">
+                            <img src="" alt="Authorized Signature" style="max-width: 150px;">
+                        </div>
+                        <p>Authorized Signature</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> 
+</div>
+
+
+
+
+
