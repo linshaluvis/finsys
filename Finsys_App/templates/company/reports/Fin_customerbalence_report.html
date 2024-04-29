@@ -7,11 +7,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.0/html2canvas.min.js"></script>
+
+
 <style>
     .bar {
         align-items: center;
         display: flex;
         justify-content: space-between;
+
+
     }
 
     .bar .left {
@@ -22,6 +26,7 @@
     .bar .left input {
         height: 5vh;
     }
+
 
     .hidden {
         display: none;
@@ -38,6 +43,7 @@
             box-shadow: none !important;
             text-shadow: none !important;
             font-size: 100%;
+
         }
 
         .bar,
@@ -52,8 +58,9 @@
             text-align: center;
             width: 100%;
         }
-    }
 
+
+    }
     #customizeMenu{
         width: fit-content;
         height: 50vh;
@@ -69,6 +76,24 @@
         --themeColor: #22b8d1;
         --pageShadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
     }
+    @media print {
+        body{
+            visibility: hidden !important;
+            /* background-color: white; */
+        }
+
+        .printContainer {
+            visibility: visible !important;
+            position: absolute;
+            z-index: 99999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: large;
+        }
+
+    }
 
     .page {
         background: var(--white);
@@ -83,18 +108,27 @@
         height: 29.7cm;
         overflow: hidden;
     }
-
     #reportTable {
-        border-collapse: collapse;
-        width: 100%;
+    border-collapse: collapse;
+    width: 100%;
     }
 
-    #reportTable th,
-    #reportTable td {
-        border: 1px solid #dddddd;
-        padding: 5px 2px;
-        color: #000;
+    #reportTable th, #reportTable td {
+    border: 1px solid #dddddd;
+    padding: 5px 2px;
+    color: #000;
     }
+
+    /* .whatsapp-this{
+      display: flex;
+      justify-content: center;
+      cursor: pointer;
+      padding: 4px 0px;
+    }
+
+    .whatsapp-this:hover{
+      background-color: rgb(255 255 255 / 0.21);
+    } */
 
     .submitShareEmailBtn {
         background: #192d3e;
@@ -104,7 +138,6 @@
         font-weight: 600;
         padding: 0.5rem 1rem;
     }
-
     .submitShareEmailBtn:hover {
         background: #3a4b5a;
     }
@@ -122,81 +155,13 @@
     }
 
     .arrow {
+        /* font-size: 0.6em; */
         cursor: pointer;
         margin-left: 5px;
     }
 
     .arrow.up {
         transform: rotate(180deg);
-    }
-
-    .no-border {
-        border: none;
-    }
-
-    /* Combined with the previous styles */
-    table tr:not(:last-child):hover {
-        background-color: #5a7684;
-    }
-
-    th a {
-        cursor: pointer;
-    }
-
-    .card {
-        background-color: #243e54;
-    }
-
-    @media print {
-        body {
-            visibility: hidden !important;
-        }
-
-        .printContainer {
-            visibility: visible !important;
-            position: absolute;
-            z-index: 99999;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            font-size: large;
-        }
-
-        .printContainer #report_table thead th {
-            background-color: #243e54 !important;
-        }
-
-        .printContainer #report_table td {
-            background-color: #243e54 !important;
-        }
-    }
-
-    #gdiv {
-        width: 105.5%;
-        background-color: #5a7684;
-    }
-
-    .general {
-        width: 20px;
-        height: 20px;
-        background-color: #243e54;
-        transform: rotate(45deg);
-        z-index: 1;
-        margin-top: -15%;
-        margin-right: -3%;
-        position: absolute;
-        right: 0;
-        border-left: 1px solid white;
-        border-bottom: 1px solid white;
-    }
-
-    #customize {
-        display: none;
-    }
-
-    ::-webkit-scrollbar {
-        display: none;
     }
 </style>
 
@@ -208,26 +173,53 @@
                     <!-- <h5 style="padding-top: 10px;">{{cmp.Company_name}}</h5> -->
                     <h2 class="text-uppercase" id="headline"> CUSTOMER BALANCES</h2>
                 </center>
+                
                 <hr>
             </div>
-
             <div class="bar">
 
                 <div class=" left">
                     <div class="position-relative">
-                        <button class="btn btn-secondary"  id="customizebtn"><i class="fa-solid fa-gear"></i> Customize Report</button>
+                        <button class="btn btn-secondary" onclick="toggleContent()"><i class="fa-solid fa-gear"></i> Customize Report</button>
                         <div id="contentDiv" class="content">
                             <h6>Customize Report</h6>
-                           
+                            <form action="{% url 'Fin_customerbalence_report_customized' %}" method="post" enctype="multipart/form-data" autocomplete="off" onsubmit="return validate_form()">
+                                {% csrf_token %}
+                                <div class="px-2">
+                                    <label style="text-align:left ">From</label><br>
+                                    <input name="from_date" class="inputdate form-control" type="date" id="startDate" value="{{startDate}}">
+                                </div>
+                                <div class="px-2">
+                                    <label style="text-align:left ">To</label><br>
+                                    <input name="to_date" type="date" class="inputdate form-control" id="endDate" value="{{endDate}}">
+                                </div>
+                                <div class="px-2">
+                                    <label style="text-align:left ">Customer Name</label><br>
+                                    <select name="transactions"  class=" form-control" id="customer_name">
+                                        <option value="all">All</option>
+                                        {% for customer in cust %}
+                            <option value="{{ customer.first_name }} {{ customer.last_name }}"> {{ customer.first_name }} {{ customer.last_name }}</option>
+                            {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="px-2">
+                                    <label style="text-align:left ">Show/Hide Columns</label><br>
+                                    <span class="text-danger" id="no-option" style="font-size: medium; display: none;">Select Atleast One Option From Below!<br></span>
+                                    <input type="checkbox" name="bills" id="bills"   > <label>Include INVOICE BALANCE</label><br>
+                                    
+                                    <input type="checkbox" name="dnote" id="dnote" > <label >Include AVAILABLE CREDITS</label><br>
+                                </div>
+                                <div class="d-flex px-2 mt-3 mb-4">
+                                    <button type="submit" class="btn btn-outline-light w-50">Run Report</button>
+                                    <button type="reset" onclick="toggleContent()" class="btn btn-outline-light ml-1 w-50">Cancel</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
 
 
                 </div>
                 <div class="right d-flex">
-
-                    <!--<button class="btn btn_print btn-outline-info" onclick="window.print()">Print</button>
-                    <button class=" btn btn-outline-info" id="export-button" onclick="exportAsExcel()">Excel</button> -->
                     <a class="btn btn-outline-secondary text-grey fa fa-file" role="button" id="pdfBtn" onclick="reportPDF()"> &nbsp;PDF</a> 
                     <a class="ml-2 btn btn-outline-secondary text-grey fa fa-print" role="button" id="printBtn" onclick="printSection('printReport')">&nbsp;Print</a>
                     <a class="ml-2 btn btn-outline-secondary text-grey fa fa-table" role="button" id="exportBtn" onclick="ExportToExcel()">&nbsp;Export</a>
@@ -244,6 +236,8 @@
             </div>
         </div>
     </div>
+
+           
     <div class="card radius-15 print-only" id="pdf-card">
         <div class="card-body">
             <div class="container-fluid">
@@ -256,9 +250,15 @@
                                 <div class="col-12">
                                         <center class="h5 text-white"><b>{{cmp.Company_name}}</b></center>
                                         <center class="h3 text-white"><b>CUSTOMER BALANCES</b></center>
-                                        {% if startDate and endDate %}
-                                        <center class="h6 text-white">{{startDate}} TO {{endDate}}</center>
-                                        {% endif %}
+                                        <div>
+                                            {% if start_date and end_date %}
+                                            <center>
+                                                <p class="text-uppercase">
+                                                    From: <span id="from_date">{{ start_date }}</span> &nbsp;&nbsp; To: <span id="to_date">{{ end_date }}</span>
+                                                </p>
+                                            </center>
+                                            {% endif %}
+                                        </div>
                                 </div>  
                                 <!-- <div class="col-md-4 d-flex justify-content-end"></div> -->
                             </div>
@@ -270,8 +270,18 @@
                                             <thead>
                                                 <tr>
                                                     <th class="text-center">CUSTOMER NAME <i class="fa-solid fa-caret-up arrow" onclick="sortName(0)"></i></th>
-                                                    <th class="text-center">INVOICE BALENCE</th>
-                                                    <th class="text-center">AVAILABLE CREDITS</th>
+                                                    {% if invoice_c_present %}
+                                                    <th class="text-center invoice-balance-col">INVOICE BALANCE</th>
+                                                {% else %}
+                                                    <th class="text-center invoice-balance-col" style="display:none;">INVOICE BALANCE</th>
+                                                {% endif %}
+                                                {% if cnote_c_present %}
+                                                <th class="text-center available-credits-col">AVAILABLE CREDITS</th>
+                                                    {% else %}
+                                                    <th class="text-center available-credits-col" style="display:none;">AVAILABLE CREDITS</th>
+                                                    {% endif %}
+                                                   
+                                                    
                                                     <th class="text-center"> BALANCE</th>
                                                     <th class="text-center">BALANCE </th>
 
@@ -281,8 +291,17 @@
                                                 {% for customer in customers %}
                                                     <tr>
                                                         <td class="text-center">{{ customer.name }}  </td>
-                                                        <td class="text-center">{{ customer.invoice_balance |floatformat:2 }}</td>
-                                                        <td class="text-center">{{ customer.available_credits }}</td>
+                                                        {% if invoice_c_present %}
+                                                        <td class="text-center  invoice-balance-col">{{ customer.invoice_balance |floatformat:2 }}</td>
+                                                        {% else %}
+                                                        <td class="text-center  invoice-balance-col"style="display:none;">{{ customer.invoice_balance |floatformat:2 }}</td>
+                                                        {% endif %}
+
+                                                        {% if cnote_c_present %}
+                                                        <td class="text-center  available-credits-col">{{ customer.available_credits }}</td>
+                                                        {% else %}
+                                                        <td class="text-center  available-credits-col"style="display:none;">{{ customer.available_credits }}</td>
+                                                        {% endif %}
                                                         <td class="text-center">{{ customer.total_balance }}</td>
                                                         <td class="text-center">{{ customer.total_balance }}</td>
 
@@ -368,20 +387,33 @@
     </div>
 </div>
 <div class="page-content" id="customize">
-    <form action="{% url 'Fin_customize_purchase_report_vendor' %}" method="post" enctype="multipart/form-data" autocomplete="off" onsubmit="return validate_form()">
+    <form action="{% url 'Fin_customerbalence_report_customized' %}" method="post" enctype="multipart/form-data" autocomplete="off" onsubmit="return validate_form()">
         {% csrf_token %}
         <div class="card radius-15 p-5">
             <div class="card-body">
                 <h2>Customize Report</h2><hr class="bg-white"><br>
                 <div class="row">
-                    <!-- General Section -->
                     <div class="col-3">
-                        <div class="pt-3 pl-3 pb-3" onclick="showGeneral()">
+                        <div class="pt-3 pl-3 pb-3" id="gdiv">
                             <h4>General</h4>
                         </div>
                         <div class="general"></div>
                     </div>
-                    <div class="col-9" style="border-left: 1px solid white;">
+                    <div class="col-9" style="border-left: 1px solid white;" id="toggle-date-range">
+                        <label for="customer_name" style="font-size: large;">Customer Name</label><br>
+                   
+                        <select class="form-control" name="customer_name" id="customer_name">
+                            <option value="all"> All</option>
+
+                            {% for customer in cust %}
+                            <option value="{{ customer.first_name }} {{ customer.last_name }}"> {{ customer.first_name }} {{ customer.last_name }}</option>
+                            {% endfor %}
+                          
+                            <!-- Add more options for each customer -->
+                        </select>
+                         
+                      
+                        <br>
                         <label for="" style="font-size: large;">Date Range</label><br>
                         <div class="row">
                             <div class="col-1">
@@ -397,41 +429,123 @@
                             <input type="date" class="form-control w-50 ml-5" name="cto_date" id="cto_date"> 
                         </div><br>
                     </div>
-                    <!-- Show/Hide Columns Section -->
+                </div>
+                <div class="row">
                     <div class="col-3">
-                        <div class="pt-3 pl-3 pb-3" onclick="showHideColumns()">
-                            <h4>Show/Hide Columns</h4>
+                        <div class="pt-3 pl-3 pb-3" id="shdiv">
+                            <h4>show/hide columns</h4>
                         </div>
-                        <div class="row">
-
-                        <div class="show-hide-columns">
-                            <!-- Show/Hide Columns content goes here -->
-                            <span class="text-danger" id="no-option" style="font-size: medium; display: none;">Select Atleast One Option From Below!<br></span>
-                            <input type="checkbox" name="bills" id="bills" onclick="$('#no-option').hide()" checked> <label style="font-size: large;">Include Bills</label><br>
-                            <input type="checkbox" name="dnote" id="dnote" onclick="$('#no-option').hide()" checked> <label style="font-size: large;">Include Debit Notes</label><br>
-                            <input type="checkbox" name="rbills" id="rbills" onclick="$('#no-option').hide()" checked> <label style="font-size: large;">Include Recurring Bills</label><br><br>
-                        </div>
+                        <div class="show"></div>
                     </div>
-                    <!-- Rest of the form content goes here -->
-                    <div class="col-6">
-                        <!-- Rest of the form content -->
+                    <div class="col-9" style="border-left: 1px solid white;"id="toggle-columns">
+                       
+                        <div class="row">
+                           
+                        </div>
+                        <div class="d-flex">
+                           
+                        </div><br>
+                        <span class="text-danger" id="no-option" style="font-size: medium; display: none;">Select Atleast One Option From Below!<br></span>
+                        <input type="checkbox" name="bills" id="bills"   > <label style="font-size: large;">Include INVOICE BALANCE</label><br>
+                        <input type="checkbox" name="dnote" id="dnote" > <label style="font-size: large;">Include AVAILABLE CREDITS</label><br>
+                        
+                    </div>
+                </div>
+                <div class="row justify-content-center"><!-- Centered row for buttons -->
+                    <div class="col-6 text-center"><!-- Centered column for buttons -->
+                        <button class="btn btn-outline-secondary text-grey" type="submit">Run Report</button>
+                        <a onclick="location.reload()" class="btn btn-outline-secondary text-grey">Cancel</a>
                     </div>
                 </div>
             </div>
         </div>
+        
     </form>
 </div>
-
 <script>
-    function showGeneral() {
-        $(".general").toggle();
-    }
+    $(document).ready(function() {
+        $('#toggle-columns').hide();
+        // Toggle date range
+        $('#toggle-date-range').change(function() {
+            $('#date-range').toggle();
+            
+        });
 
-    function showHideColumns() {
-        $(".show-hide-columns").toggle();
+        // Toggle columns to include
+        $('#toggle-columns').change(function() {
+            $('#column-options').toggle();
+        });
+
+        // Toggle General and Show/Hide Columns sections
+        $('#gdiv').click(function() {
+            $('.general').toggle();
+            $('#toggle-columns').hide(); // Hide Show/Hide Columns when General is clicked
+        });
+        $('#shdiv').click(function() {
+            $('#toggle-columns').toggle();
+            $('.general').hide(); // Hide General when Show/Hide Columns is clicked
+        });
+    });
+
+   
+        // Function to toggle column visibility
+        
+</script>
+
+<!-- Customize Tab Disbling Date in To Date -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var start = document.getElementById('cfrom_date');
+        var end = document.getElementById('cto_date');
+        start.addEventListener('change', function() {
+            var selectedDate = new Date(start.value);
+            end.min = formatDate(selectedDate);
+            $('#cto_date').prop('required', true)
+        });
+        function formatDate(date) {
+            var year = date.getFullYear();
+            var month = ('0' + (date.getMonth() + 1)).slice(-2);
+            var day = ('0' + date.getDate()).slice(-2);
+            return year + '-' + month + '-' + day;
+        }
+    });
+</script>
+
+
+<!-- Validate Customize Form -->
+<script>
+    function validate_form(){
+        if($('#bills').prop('checked') || $('#dnote').prop('checked') || $('#rbills').prop('checked')){
+            return true;
+        }else{
+            $('#no-option').show()
+            return false;
+        }
     }
 </script>
 
+<!-- Send Mail Hidden Checkbox -->
+<script>
+    $(document).ready(function() {
+        if ('{{is_bills}}' == '1'){
+            $('#bills_mail').prop('checked', true)
+        }else{
+            $('#bills_mail').prop('checked', false)
+        }
+
+        if ('{{is_dnote}}' == '1'){
+            $('#dnote_mail').prop('checked', true)
+        }else{
+            $('#dnote_mail').prop('checked', false)
+        }
+
+        if ('{{is_rbills}}' == '1'){
+            $('#rbills_mail').prop('checked', true)
+        }else{
+            $('#rbills_mail').prop('checked', false)
+        }
+    });
+</script>
 
 
 <script>
