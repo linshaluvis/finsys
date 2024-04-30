@@ -33368,6 +33368,7 @@ def Fin_customerbalence_report_customized(request):
             end_date_str = None
         
         print(end_date_str)
+        
 
         # Check if 'bills' is present in POST data
         if 'bills' in request.POST:
@@ -33391,6 +33392,8 @@ def Fin_customerbalence_report_customized(request):
         # Convert start_date and end_date strings to datetime objects
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d') if start_date_str else None
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d') if end_date_str else None
+        print(start_date)
+        print(end_date)
         if name == 'all':
             for customer in cust:
                 customerName = customer.first_name + " " + customer.last_name
@@ -33430,24 +33433,25 @@ def Fin_customerbalence_report_customized(request):
                     
                     recurring_invoice_balance = sum(float(rec_inv.balance) for rec_inv in recurring_invoices)
                     available_credits = sum(float(credit_note.balance) for credit_note in credit_notes)
+                    total_invoice_balance = invoice_balance + recurring_invoice_balance
                     total_balance = total_invoice_balance - available_credits
 
                     # Update the total balance
-            total_balance1 += total_balance
-            totCust = len(cust)
-            invoice_balance1 += invoice_balance
-            recurring_invoice_balance1 += recurring_invoice_balance
-            available_credits1 += available_credits
-            total_invoice_balance1 += total_invoice_balance
+                total_balance1 += total_balance
+                totCust = len(cust)
+                invoice_balance1 += invoice_balance
+                recurring_invoice_balance1 += recurring_invoice_balance
+                available_credits1 += available_credits
+                total_invoice_balance1 += total_invoice_balance
 
                 
 
-            customers_data.append({
-                    'name': customerName,
-                    'invoice_balance': total_invoice_balance,
-                    'available_credits': available_credits,
-                    'total_balance': total_balance,
-                })
+                customers_data.append({
+                        'name': customerName,
+                        'invoice_balance': total_invoice_balance,
+                        'available_credits': available_credits,
+                        'total_balance': total_balance,
+                    })
 
         else:
             for customer in cust:

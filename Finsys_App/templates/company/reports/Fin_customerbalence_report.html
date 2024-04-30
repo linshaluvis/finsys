@@ -187,11 +187,11 @@
                                 {% csrf_token %}
                                 <div class="px-2">
                                     <label style="text-align:left ">From</label><br>
-                                    <input name="from_date" class="inputdate form-control" type="date" id="startDate" value="{{startDate}}">
+                                    <input name="from_date" class="inputdate form-control" type="date" id="startDate" value="{{start_date}}">
                                 </div>
                                 <div class="px-2">
                                     <label style="text-align:left ">To</label><br>
-                                    <input name="to_date" type="date" class="inputdate form-control" id="endDate" value="{{endDate}}">
+                                    <input name="to_date" type="date" class="inputdate form-control" id="endDate" value="{{end_date}}">
                                 </div>
                                 <div class="px-2">
                                     <label style="text-align:left ">Customer Name</label><br>
@@ -202,7 +202,7 @@
                             {% endfor %}
                                     </select>
                                 </div>
-                                <div class="px-2">
+                                <div class="px-2 pt-2">
                                     <label style="text-align:left ">Show/Hide Columns</label><br>
                                     <span class="text-danger" id="no-option" style="font-size: medium; display: none;">Select Atleast One Option From Below!<br></span>
                                     <input type="checkbox" name="bills" id="bills"   > <label>Include INVOICE BALANCE</label><br>
