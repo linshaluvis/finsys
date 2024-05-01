@@ -883,6 +883,11 @@ urlpatterns = [
 
         path('Fin_shareCustomerBalenceReportToEmail',views.Fin_shareCustomerBalenceReportToEmail, name='Fin_shareCustomerBalenceReportToEmail'),
         path('Fin_customerbalence_report_customized',views.Fin_customerbalence_report_customized, name='Fin_customerbalence_report_customized'),
+ # ------------------------------------ estimate Report ------------------------------------
+        path('Fin_estimate_report',views.Fin_estimate_report, name='Fin_estimate_report'),
+
+        path('Fin_estimateDetailsCustomized',views.Fin_estimateDetailsCustomized, name='Fin_estimateDetailsCustomized'),
+    path('Fin_shareestimateDetailsReportToEmail',views.Fin_shareestimateDetailsReportToEmail, name='Fin_shareestimateDetailsReportToEmail'),
 
 
 
