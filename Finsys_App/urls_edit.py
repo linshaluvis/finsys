@@ -1,7 +1,5 @@
-# ------------------------------------ estimate Report ------------------------------------
-        path('Fin_estimate_report',views.Fin_estimate_report, name='Fin_estimate_report'),
-
-        path('Fin_estimateDetailsCustomized',views.Fin_estimateDetailsCustomized, name='Fin_estimateDetailsCustomized'),
-        path('Fin_shareestimateDetailsReportToEmail',views.Fin_shareestimateDetailsReportToEmail, name='Fin_shareestimateDetailsReportToEmail'),
-
+# ------------------------------------ rec invoice Report ------------------------------------
+        path('Fin_recInvoice_report',views.Fin_recInvoice_report, name='Fin_recInvoice_report'),
+        path('Fin_recinvCustomized',views.Fin_recinvCustomized, name='Fin_recinvCustomized'),
+        path('Fin_shareREC_INVOICEDetailsReportToEmail',views.Fin_shareREC_INVOICEDetailsReportToEmail, name='Fin_shareREC_INVOICEDetailsReportToEmail'),
 
