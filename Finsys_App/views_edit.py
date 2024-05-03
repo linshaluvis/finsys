@@ -1,5 +1,4 @@
-
-def Fin_recInvoice_report(request):
+def Fin_journel_report(request):
     if 's_id' in request.session:
         s_id = request.session['s_id']
         data = Fin_Login_Details.objects.get(id = s_id)
@@ -15,74 +14,52 @@ def Fin_recInvoice_report(request):
         currentDate = datetime.today()
 
         reportData = []
-        totalSales = 0
-        totcust=0
-        totalbalance=0
+        totaldebit = 0
+        totalcredit=0
 
-        Recinv = Fin_Recurring_Invoice.objects.filter(Company=cmp)
-        cust = Fin_Customers.objects.filter(Company=cmp)
+        Jrn = Fin_Manual_Journal.objects.filter(Company=cmp)
+        JrnAcc = Fin_Manual_Journal_Accounts.objects.filter(Company=cmp)
        
-        if Recinv:
-            for s in Recinv:
-                partyName = s.Customer.first_name +" "+s.Customer.last_name
-                date = s.start_date
-                ship_date = s.end_date
-                end_date = datetime.combine(s.end_date, datetime.min.time())
+        if JrnAcc:
+            for s in JrnAcc:
+                date = s.Journal.journal_date 
 
-                ref = s.reference_no
-                rinv =s.rec_invoice_no
-                total = s.grandtotal
-                salesno=s.salesOrder_no
-                paid=s.paid_off
-                balance=s.balance
-                sta=s.status
-                invoice_no=0
-                totalSales += float(s.grandtotal)
-                totalbalance += float(s.balance)
-                if s.status == 'Draft':
-                    st = 'Draft'
-                elif s.paid_off == 0 :
-                    st = 'Not paid'
+                accname = s.Account.account_name
+                debit = s.Journal.total_debit
+                credit = s.Journal.total_credit
+
+                ref = s.Journal.reference_no
+                jounal =s.Journal.journal_no
+                status=s.Journal.status
+                totaldebit += float(s.Journal.total_debit)
+                totalcredit += float(s.Journal.total_credit)
+
+                
                     
-                elif s.paid_off == s.grandtotal:
-                    st = 'fully paid'
-                
-                elif s.paid_off > 0 and s.paid_off<s.grandtotal and end_date>currentDate:
-                    st = 'partially paid'
-                elif end_date<currentDate and s.paid_off<=s.grandtotal:
-                    st = 'overdue'
-                
-                else:
-                    st = s.status
 
                 details = {
                     'date': date,
-                    'name': partyName,
-                    'sales_no':salesno,
-                    'ship_date':ship_date,
-                    'rinv':rinv,
-                    'invoice_no': invoice_no,
-                    'total':total,
-                    'status':st,
-                    'balance':balance,
-                    
-                    
+                    'name': accname,
+                    'sales_no':ref,
+                    'jounal':jounal,
+                    'debit':debit,
+                    'credit': credit,
+                    'status': status,
+
                     
                 }
                 reportData.append(details)
-                totcust=len(cust)
 
 
         context = {
-            'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData,'totalbalance':totalbalance, 'totalSales':totalSales,'totcust':totcust,
+            'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData, 'totaldebit':totaldebit,'totalcredit':totalcredit,
             'startDate':None, 'endDate':None
         }
-        return render(request,'company/reports/Fin_rec_invoice_report.html', context)
+        return render(request,'company/reports/Fin_journal_report.html', context)
     else:
         return redirect('/')
-from django.db.models import Q
 
-def Fin_recinvCustomized(request):
+def Fin_journalDetailsCustomized(request):
     if 's_id' in request.session:
         s_id = request.session['s_id']
         data = Fin_Login_Details.objects.get(id=s_id)
@@ -95,102 +72,88 @@ def Fin_recinvCustomized(request):
         
         allmodules = Fin_Modules_List.objects.get(company_id=cmp, status='New')
         cust = Fin_Customers.objects.filter(Company=cmp)
-
-        startDate = request.GET.get('start_date', None)
-        endDate = request.GET.get('end_date', None)
-        status = request.GET.get('status')
-        print(startDate)
-        print(endDate)
-        print(status)
-
-
-
-        currentDate = datetime.today()
-
-        reportData = []
-        totalSales = 0
-        totcust = len(cust)
-        totalbalance = 0
-
-        Recinv = Fin_Recurring_Invoice.objects.filter(Company=cmp)
         
-        if startDate and endDate:
-            Recinv = Recinv.filter(start_date__range=[startDate, endDate])
-            print("1")
 
-        if status:
-            if status == 'Draft':
-                Recinv = Recinv.filter(status = 'Draft')
-                print("2")
-            elif status == 'fully paid':
-                Recinv = Recinv.filter(paid_off=F('grandtotal'),status='saved')
-                print("2")
+        if request.method == 'GET':
+            startDate = request.GET['from_date']
+            endDate = request.GET['to_date']
+            status = request.GET['status']
 
-            elif status == 'overdue':
-                Recinv = Recinv.filter(Q(end_date__lt=currentDate) & Q(paid_off__lt=F('grandtotal')),status='saved')
-                print("3")
+            if startDate == "":
+                startDate = None
+            if endDate == "":
+                endDate = None
 
-            elif status == 'Not paid':
-                Recinv = Recinv.filter(paid_off=0, status='saved')
-                print("4")
 
-            elif status == 'partially paid':
-                Recinv = Recinv.filter(Q(paid_off__gt=0)  & Q(paid_off__lt=F('grandtotal')),status='saved')
-                print(Recinv)
-                print("5")
+            print(startDate)
+            print(endDate)
+            print(status)
 
-        for s in Recinv:
-            partyName = s.Customer.first_name + " " + s.Customer.last_name
-            date = s.start_date
-            ship_date = s.end_date
-            end_date = datetime.combine(s.end_date, datetime.min.time())
+            currentDate = datetime.today()
 
-            ref = s.reference_no
-            rinv = s.rec_invoice_no
-            total = s.grandtotal
-            salesno = s.salesOrder_no
-            paid = s.paid_off
-            balance = s.balance
-            sta = s.status
-            invoice_no = 0
-            totalSales += float(s.grandtotal)
-            totalbalance += float(s.balance)
-            if s.status == 'Draft':
-                st = 'Draft'
-            elif s.paid_off == 0 and end_date>currentDate:
-                st = 'Not paid'
-            elif s.paid_off == s.grandtotal:
-                st = 'fully paid'
-            elif s.paid_off > 0 and s.paid_off < s.grandtotal and end_date>currentDate:
-                st = 'partially paid'
-            elif end_date < currentDate and s.paid_off <= s.grandtotal:
-                st = 'overdue'
-            else:
-                st = s.status
+            reportData = []
+            totaldebit = 0
+            totalcredit=0
 
-            details = {
-                'date': date,
-                'name': partyName,
-                'sales_no': salesno,
-                'ship_date': ship_date,
-                'rinv': rinv,
-                'invoice_no': invoice_no,
-                'total': total,
-                'status': st,
-                'balance': balance,
-            }
-            reportData.append(details)
+            Jrn = Fin_Manual_Journal.objects.filter(Company=cmp)
+            JrnAcc = Fin_Manual_Journal_Accounts.objects.filter(Company=cmp)
+        
+            
+            if startDate and endDate:
+                JrnAcc = JrnAcc.filter(Journal__journal_date__range=[startDate, endDate])
+                print("1")
+
+            if status:
+                if status == 'Draft':
+                    JrnAcc = JrnAcc.filter(Journal__status = 'Draft')
+
+                    print("2")
+                
+                elif status == 'Saved':
+                    JrnAcc = JrnAcc.filter(Journal__status = 'Saved')
+
+                    print("5")
+
+            for s in JrnAcc:
+                    date = s.Journal.journal_date 
+
+                    accname = s.Account.account_name
+                    debit = s.Journal.total_debit
+                    credit = s.Journal.total_credit
+
+                    ref = s.Journal.reference_no
+                    jounal =s.Journal.journal_no
+                    status=s.Journal.status
+                    totaldebit += float(s.Journal.total_debit)
+                    totalcredit += float(s.Journal.total_credit)
+
+                
+                    
+
+                    details = {
+                        'date': date,
+                        'name': accname,
+                        'sales_no':ref,
+                        'jounal':jounal,
+                        'debit':debit,
+                        'credit': credit,
+                        'status': status,
+
+                        
+                    }
+                    reportData.append(details)
+
 
         context = {
-            'allmodules': allmodules, 'com': com, 'cmp': cmp, 'data': data, 'reportData': reportData,'totalbalance':totalbalance,
-            'totalSales': totalSales, 'totcust': totcust, 'startDate': startDate, 'endDate': endDate, 'status': status
+            'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData, 'totaldebit':totaldebit,'totalcredit':totalcredit,
+            'startDate':startDate, 'endDate':endDate,'status':status
         }
-        return render(request, 'company/reports/Fin_rec_invoice_report.html', context)
+        print(status)
+        return render(request,'company/reports/Fin_journal_report.html', context)
     else:
         return redirect('/')
-
-
-def Fin_shareREC_INVOICEDetailsReportToEmail(request):
+    
+def Fin_share_journalDetailsReportToEmail(request):
     if 's_id' in request.session:
         s_id = request.session['s_id']
         data = Fin_Login_Details.objects.get(id = s_id)
@@ -209,119 +172,97 @@ def Fin_shareREC_INVOICEDetailsReportToEmail(request):
                 # print(emails_list)
                 cust = Fin_Customers.objects.filter(Company=cmp)
             
-                cust = Fin_Customers.objects.filter(Company=cmp)
                 startDate = request.POST['start']
                 endDate = request.POST['end']
                 status = request.POST['status']
+
                 if startDate == "":
                     startDate = None
                 if endDate == "":
                     endDate = None
 
-                
+
                 print(startDate)
                 print(endDate)
                 print(status)
 
-
-
                 currentDate = datetime.today()
 
                 reportData = []
-                totalSales = 0
-                totcust = len(cust)
-                totalbalance = 0
+                totaldebit = 0
+                totalcredit=0
 
-                Recinv = Fin_Recurring_Invoice.objects.filter(Company=cmp)
+                Jrn = Fin_Manual_Journal.objects.filter(Company=cmp)
+                JrnAcc = Fin_Manual_Journal_Accounts.objects.filter(Company=cmp)
+            
                 
                 if startDate and endDate:
-                    Recinv = Recinv.filter(start_date__range=[startDate, endDate])
+                    JrnAcc = JrnAcc.filter(Journal__journal_date__range=[startDate, endDate])
                     print("1")
 
                 if status:
                     if status == 'Draft':
-                        Recinv = Recinv.filter(status = 'Draft')
+                        JrnAcc = JrnAcc.filter(Journal__status = 'Draft')
+
                         print("2")
-                    elif status == 'fully paid':
-                        Recinv = Recinv.filter(paid_off=F('grandtotal'),status='saved')
-                        print("2")
+                    
+                    elif status == 'Saved':
+                        JrnAcc = JrnAcc.filter(Journal__status = 'Saved')
 
-                    elif status == 'overdue':
-                        Recinv = Recinv.filter(Q(end_date__lt=currentDate) & Q(paid_off__lt=F('grandtotal')),status='saved')
-                        print("3")
-
-                    elif status == 'Not paid':
-                        Recinv = Recinv.filter(paid_off=0, status='saved')
-                        print("4")
-
-                    elif status == 'partially paid':
-                        Recinv = Recinv.filter(Q(paid_off__gt=0) & Q(paid_off__lt=F('grandtotal')),status='saved')
                         print("5")
 
-                for s in Recinv:
-                    partyName = s.Customer.first_name + " " + s.Customer.last_name
-                    date = s.start_date
-                    ship_date = s.end_date
-                    end_date = datetime.combine(s.end_date, datetime.min.time())
+                for s in JrnAcc:
+                        date = s.Journal.journal_date 
 
-                    ref = s.reference_no
-                    rinv = s.rec_invoice_no
-                    total = s.grandtotal
-                    salesno = s.salesOrder_no
-                    paid = s.paid_off
-                    balance = s.balance
-                    sta = s.status
-                    invoice_no = 0
-                    totalSales += float(s.grandtotal)
-                    totalbalance += float(s.balance)
-                    if s.status == 'Draft':
-                        st = 'Draft'
-                    elif s.paid_off == 0 and end_date>currentDate:
-                        st = 'Not paid'
-                    elif s.paid_off == s.grandtotal:
-                        st = 'fully paid'
-                    elif s.paid_off > 0 and s.paid_off < s.grandtotal and end_date>currentDate:
-                        st = 'partially paid'
-                    elif end_date < currentDate and s.paid_off <= s.grandtotal:
-                        st = 'overdue'
-                    else:
-                        st = s.status
+                        accname = s.Account.account_name
+                        debit = s.Journal.total_debit
+                        credit = s.Journal.total_credit
 
-                    details = {
-                        'date': date,
-                        'name': partyName,
-                        'sales_no': salesno,
-                        'ship_date': ship_date,
-                        'rinv': rinv,
-                        'invoice_no': invoice_no,
-                        'total': total,
-                        'status': st,
-                        'balance': balance,
-                    }
-                    reportData.append(details)
+                        ref = s.Journal.reference_no
+                        jounal =s.Journal.journal_no
+                        status=s.Journal.status
+                        totaldebit += float(s.Journal.total_debit)
+                        totalcredit += float(s.Journal.total_credit)
 
-                    totcust=len(cust)
                 
-                context = {'cmp':cmp, 'reportData':reportData, 'totalSales':totalSales,'totcust':totcust, 'startDate':startDate,'totalbalance':totalbalance, 'endDate':endDate}
-                template_path = 'company/reports/Fin_rec_invoice_pdf.html'
+                    
+
+                        details = {
+                            'date': date,
+                            'name': accname,
+                            'sales_no':ref,
+                            'jounal':jounal,
+                            'debit':debit,
+                            'credit': credit,
+                            'status': status,
+
+                            
+                        }
+                        reportData.append(details)
+
+
+                context = { 'cmp':cmp, 'data':data, 'reportData':reportData, 'totaldebit':totaldebit,'totalcredit':totalcredit,
+                    'startDate':startDate, 'endDate':endDate,'status':status
+                }
+                       
+                template_path = 'company/reports/Fin_journal_Pdf.html'
                 template = get_template(template_path)
 
                 html  = template.render(context)
                 result = BytesIO()
                 pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
                 pdf = result.getvalue()
-                filename = f'Report_rec_invoice_Details'
-                subject = f"Report_rec_invoice_Details"
-                email = EmailMessage(subject, f"Hi,\nPlease find the attached Report for - Sales Order Details. \n{email_message}\n\n--\nRegards,\n{cmp.Company_name}\n{cmp.Address}\n{cmp.State} - {cmp.Country}\n{cmp.Contact}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+                filename = f'Report_journal_Details'
+                subject = f"Report_journal_Details"
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached Report for - journal Details. \n{email_message}\n\n--\nRegards,\n{cmp.Company_name}\n{cmp.Address}\n{cmp.State} - {cmp.Country}\n{cmp.Contact}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
                 email.attach(filename, pdf, "application/pdf")
                 email.send(fail_silently=False)
 
                 messages.success(request, 'Report has been shared via email successfully..!')
-                return redirect(Fin_recInvoice_report)
+                return redirect(Fin_journel_report)
         except Exception as e:
             print(e)
             messages.error(request, f'{e}')
-            return redirect(Fin_recInvoice_report)
+            return redirect(Fin_journel_report)
             
 #End
-    

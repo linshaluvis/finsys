@@ -893,8 +893,10 @@ urlpatterns = [
             path('Fin_recinvCustomized',views.Fin_recinvCustomized, name='Fin_recinvCustomized'),
                 path('Fin_shareREC_INVOICEDetailsReportToEmail',views.Fin_shareREC_INVOICEDetailsReportToEmail, name='Fin_shareREC_INVOICEDetailsReportToEmail'),
 
-
-
+ # ------------------------------------ rec invoice Report ------------------------------------
+            path('Fin_journel_report',views.Fin_journel_report, name='Fin_journel_report'),
+            path('Fin_journalDetailsCustomized',views.Fin_journalDetailsCustomized, name='Fin_journalDetailsCustomized'),
+            path('Fin_share_journalDetailsReportToEmail',views.Fin_share_journalDetailsReportToEmail, name='Fin_share_journalDetailsReportToEmail'),
 
 
 
