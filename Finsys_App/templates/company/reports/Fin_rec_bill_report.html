@@ -187,7 +187,7 @@
             <div class="card-title" id="div2">
                 <center>
                     <!-- <h5 style="padding-top: 10px;">{{cmp.Company_name}}</h5> -->
-                    <h2 class="text-uppercase" id="headline">JOURNAL DETAILS</h2>
+                    <h2 class="text-uppercase" id="headline">RECURRING BILL  DETAILS</h2>
                 </center>
                 <hr>
             </div>
@@ -199,23 +199,32 @@
                         <button class="btn btn-secondary" onclick="toggleContent()"><i class="fa-solid fa-gear"></i> Customize Report</button>
                         <div id="contentDiv" class="content">
                             <h6>Customize Report</h6>
-                            <form action="{% url 'Fin_journalDetailsCustomized' %}" class="form reportCustomizeForm" method="get">
+                            <form action="{% url 'Fin_recbillCustomized' %}" class="form reportCustomizeForm" method="get">
                                 <div class="px-2">
                                     <label style="text-align:left ">From</label><br>
-                                    <input name="from_date" class="inputdate form-control" type="date" id="startDate" value="{{startDate}}">
+                                    <input  class="inputdate form-control" type="date"  name="start_date" id="startDate" value="{{ startDate }}">
                                 </div>
                                 <div class="px-2">
                                     <label style="text-align:left ">To</label><br>
-                                    <input name="to_date" type="date" class="inputdate form-control" id="endDate" value="{{endDate}}">
+                                    <input type="date" class="inputdate form-control" name="end_date" id="endDate" value="{{ endDate }}">
                                 </div>
                                 <div class="px-2">
-                                    <label style="text-align:left ">Status</label><br>
+                                    <label style="text-align:left ">Report By</label><br>
+                                    <select name="billdate" id="billdate" class="form-control">
+                                        <option value="billdate" {% if billdate == "billdate" %} selected {% endif %}>Bill Date</option>
+                                        <option value="shipdate" {% if billdate == "shipdate" %} selected {% endif %}>Due Date</option>
+                                    </select>
+
+                                    </div>
+                                <div class="px-2">
+                                     <label style="text-align:left ">Status</label><br>
                                     <select name="status" id="salesStatus" class="form-control">
                                         <option value="all">All</option>
-                                        
-                                        <option value="Saved">Saved</option>
-                                        <option value="Draft">Draft</option>
-                                       
+                                        <option value="Draft" {% if status_filter == "Draft" %} selected {% endif %}>Draft</option>
+                                        <option value="Not paid" {% if status_filter == "Not paid" %} selected {% endif %}>Not paid</option>
+                                        <option value="fully paid" {% if status_filter == "fully paid" %} selected {% endif %}>Fully Paid</option>
+                                        <option value="partially paid" {% if status_filter == "partially paid" %} selected {% endif %}>Partially Paid</option>
+                                        <option value="overdue" {% if status_filter == "overdue" %} selected {% endif %}>Overdue</option>
                                     </select>
                                 </div>
                                 <div class="d-flex px-2 mt-3 mb-4">
@@ -265,7 +274,7 @@
                                 <!-- <div id="ember2512" class="col-md-4 d-flex justify-content-start tooltip-container ember-view ribbon text-ellipsis"></div> -->
                                 <div class="col-12">
                                         <center class="h5 text-white"><b>{{cmp.Company_name}}</b></center>
-                                        <center class="h3 text-white"><b>JOURNAL DETAILS</b></center>
+                                        <center class="h3 text-white"><b>RECURRING BILL DETAILS</b></center>
                                         {% if startDate and endDate %}
                                         <center class="h6 text-white">{{startDate}} TO {{endDate}}</center>
                                         {% endif %}
@@ -279,29 +288,27 @@
                                         <table class="table table-responsive-md mt-4 table-hover" id="reportTable">
                                             <thead>
                                                 <tr>
-                                                    <th class="text-center hidden">STATUS</th>
-
-                                                    <th class="text-center">DATE</th>
-                                                    
-                                                    <th class="text-center">JOURNAL NO</th>
-                                                    <th class="text-center">PARTICULARS</th>
-
-                                                    <th class="text-center">CREDIT AMOUNT</th>
-                                                    <th class="text-center">DEBIT AMOUNT</th>
-
+                                                    <th class="text-center">STATUS</th>
+                                                    <th class="text-center">REC.BILL DATE</th>
+                                                    <th class="text-center">DUE DATE</th>
+                                                    <th class="text-center">REC.BILL NO.</th>
+                                                    <th class="text-center">VENDOR NAME<i class="fa-solid fa-caret-up arrow" onclick="sortName(4)"></i></th>
+                                                    <th class="text-center">PURCHASE ORDER  NO.</th>
+                                                    <th class="text-center">BILL AMOUNT</th>
+                                                    <th class="text-center"> BALANCE </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {% for i in reportData %}
                                                 <tr>
-                                                    <td class="text-center hidden">{{i.status}}</td>
-
+                                                    <td class="text-center">{{i.status}}</td>
                                                     <td class="text-center">{{i.date}}</td>
-                                                    <td class="text-center">{{i.jounal}}</td>
-
+                                                    <td class="text-center">{{i.ship_date}}</td>
+                                                    <td class="text-center">{{i.rbill}}</td>
                                                     <td class="text-center">{{i.name}}</td>
-                                                    <td class="text-center">Rs. {{i.debit|floatformat:2 }}</td>
-                                                    <td class="text-center">Rs. {{i.credit|floatformat:2 }}</td>
+                                                    <td class="text-center">{{i.ordrno}}</td>
+                                                    <td class="text-center">Rs. {{i.total|floatformat:2 }}</td> 
+                                                    <td class="text-center">Rs. {{i.balance|floatformat:2 }}</td>
                                                 </tr>
                                                 {% endfor %}
                                             </tbody>
@@ -310,29 +317,29 @@
                                         <center><h4 class="text-dark">No data available.!</h4></center>
                                         {% endif %}
                                     </section>
+                                   
                                     <section class="balance-info text-dark">
                                         <div class="row p-4">
                                             <div class="col-10">
                                                 <div class="row mb-2">
-                                                    <div class="col-4"><p style="font-size: 19px;"></p>
+                                                    <div class="col-4">Total Vendors : <p style="font-size: 19px;">{{totcust|default:0}}</p>
                                                     </div><br><br>
                                                 </div>
                                                 <div class="row ">
                                                     <div class="col-4 "></div>
                                                     <div class="col-4"></div>
-                                                    <div class="col-4" ><h5 style="padding-top: 23px; color: #000; font-weight: bold;">Total Debit:</h5> 
-                                                        <h4 class="text-dark" id="expense"  style="font-weight: 600;">₹<span id="totalCreditnote">{{totaldebit|default:0|floatformat:2}}</span></h4></div>
+                                                    <div class="col-4" ><h5 style="; color: #000; font-weight: bold;">Total Amount:</h5> 
+                                                        <h4 class="text-dark" id="expense"  style="font-weight: 600;">Rs.<span id="totalCreditnote">{{totalSales|default:0|floatformat:2}}</span></h4></div>
                                                 </div>
                                                 
                             
                                             </div>
                                             <div class="col-2 text-center">
-                                                <h5 style="padding-top: 70px; color: #000; font-weight: bold;">Total Credit:</h5>
-                                                <h4 class="text-dark" style="font-weight: 600;" id="totvalue">₹<span id="superTotal">{{totalcredit|default:0|floatformat:2}}</span></h4>
+                                                <h5 style="padding-top: 70px; color: #000; font-weight: bold;">Total Balance:</h5>
+                                                <h4 class="text-dark" style="font-weight: 600;" id="totvalue">Rs.<span id="superTotal">{{totalbalance|default:0|floatformat:2}}</span></h4>
                                             </div>
                                         </div>
                                     </section>
-                                    
                                     
                                     
                                     
@@ -361,7 +368,7 @@
             </div>
             <div class="modal-body">
                 <div class="card p-3">
-                    <form action="{% url 'Fin_share_journalDetailsReportToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
+                    <form action="{% url 'Fin_shareREC_billDetailsReportToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="emailIds">Email IDs</label>
@@ -372,6 +379,7 @@
                             <textarea name="email_message" id="email_message" class="form-control" cols="" rows="4" placeholder="This message will be sent along with Bill details."></textarea>
                         </div>
                         <input type="text" name="status" id="stat" hidden>
+
                         <input type="date" name="start" id="startDt" hidden>
                         <input type="date" name="end" id="endDt" hidden>
                     </form>
@@ -388,7 +396,7 @@
 <script>
     $(document).ready(function(){
         var stat = `{{status}}`;
-        alert(stat)
+        // alert(trans)
         if(stat != "" && stat != 'all'){
             $('#salesStatus').val(stat)
         }
@@ -426,6 +434,7 @@
         var st = $('#startDate').val();
         var end = $('#endDate').val();
         var stat = $('#salesStatus').val();
+
 
         $('#stat').val(stat)
         $('#startDt').val(st)
@@ -502,7 +511,7 @@
         var opt =
         {
             margin: [0.5, 0.3, 0.3, 0.5],
-            filename: 'Report_Journal_Details' + date,
+            filename: 'Report_Rec_bill_Details' + date,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
@@ -534,7 +543,7 @@
         const ws = XLSX.utils.table_to_sheet(Table);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-        XLSX.writeFile(wb, "Report_JournalDetails"+date+".xlsx");
+        XLSX.writeFile(wb, "Report__Rec_bill_Details"+date+".xlsx");
     }
 
     let sortOrder = false; // false for ascending, true for descending

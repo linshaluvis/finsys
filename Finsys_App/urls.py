@@ -897,6 +897,11 @@ urlpatterns = [
             path('Fin_journel_report',views.Fin_journel_report, name='Fin_journel_report'),
             path('Fin_journalDetailsCustomized',views.Fin_journalDetailsCustomized, name='Fin_journalDetailsCustomized'),
             path('Fin_share_journalDetailsReportToEmail',views.Fin_share_journalDetailsReportToEmail, name='Fin_share_journalDetailsReportToEmail'),
+ # ------------------------------------ rec bill Report ------------------------------------
+        path('Fin_recBill_report',views.Fin_recBill_report, name='Fin_recBill_report'),
+        path('Fin_recbillCustomized',views.Fin_recbillCustomized, name='Fin_recbillCustomized'),
+        path('Fin_shareREC_billDetailsReportToEmail',views.Fin_shareREC_billDetailsReportToEmail, name='Fin_shareREC_billDetailsReportToEmail'),
+
 
 
 
