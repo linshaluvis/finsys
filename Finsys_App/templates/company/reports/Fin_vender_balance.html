@@ -171,7 +171,7 @@
             <div class="card-title" id="div2">
                 <center>
                     <!-- <h5 style="padding-top: 10px;">{{cmp.Company_name}}</h5> -->
-                    <h2 class="text-uppercase" id="headline"> CUSTOMER BALANCES</h2>
+                    <h2 class="text-uppercase" id="headline"> VENDOR BALANCES</h2>
                 </center>
                 
                 <hr>
@@ -183,7 +183,7 @@
                         <button class="btn btn-secondary" onclick="toggleContent()"><i class="fa-solid fa-gear"></i> Customize Report</button>
                         <div id="contentDiv" class="content">
                             <h6>Customize Report</h6>
-                            <form action="{% url 'Fin_customerbalence_report_customized' %}" method="post" enctype="multipart/form-data" autocomplete="off" onsubmit="return validate_form()">
+                            <form action="{% url 'Fin_vendorbalence_report_customized' %}" method="post" enctype="multipart/form-data" autocomplete="off" onsubmit="return validate_form()">
                                 {% csrf_token %}
                                 <div class="px-2">
                                     <label style="text-align:left ">From</label><br>
@@ -194,7 +194,7 @@
                                     <input name="to_date" type="date" class="inputdate form-control" id="endDate" value="{{end_date}}">
                                 </div>
                                 <div class="px-2">
-                                    <label style="text-align:left ">Customer Name</label><br>
+                                    <label style="text-align:left ">Vendor Name</label><br>
                                     <select name="transactions"  class=" form-control" id="customer_name">
                                         <option value="all">All</option>
                                         {% for customer in cust %}
@@ -205,9 +205,9 @@
                                 <div class="px-2 pt-2">
                                     <label style="text-align:left ">Show/Hide Columns</label><br>
                                     <span class="text-danger" id="no-option" style="font-size: medium; display: none;">Select Atleast One Option From Below!<br></span>
-                                    <input type="checkbox" name="bills" id="bills"   > <label>Include INVOICE BALANCE</label><br>
+                                    <input type="checkbox" name="bills" id="bills"   > <label>Include BILL BALANCE</label><br>
                                     
-                                    <input type="checkbox" name="dnote" id="dnote" > <label >Include AVAILABLE CREDITS</label><br>
+                                    <input type="checkbox" name="dnote" id="dnote" > <label >Include AVAILABLE DEBITS</label><br>
                                 </div>
                                 <div class="d-flex px-2 mt-3 mb-4">
                                     <button type="submit" class="btn btn-outline-light w-50">Run Report</button>
@@ -249,7 +249,7 @@
                                 <!-- <div id="ember2512" class="col-md-4 d-flex justify-content-start tooltip-container ember-view ribbon text-ellipsis"></div> -->
                                 <div class="col-12">
                                         <center class="h5 text-white"><b>{{cmp.Company_name}}</b></center>
-                                        <center class="h3 text-white"><b>CUSTOMER BALANCES</b></center>
+                                        <center class="h3 text-white"><b>VENDOR BALANCES</b></center>
                                         <div>
                                             {% if start_date and end_date %}
                                             <center>
@@ -269,16 +269,16 @@
                                         <table class="table table-responsive-md mt-4 table-hover" id="reportTable">
                                             <thead>
                                                 <tr>
-                                                    <th class="text-center">CUSTOMER NAME <i class="fa-solid fa-caret-up arrow" onclick="sortName(0)"></i></th>
+                                                    <th class="text-center">VENDOR NAME <i class="fa-solid fa-caret-up arrow" onclick="sortName(0)"></i></th>
                                                     {% if invoice_c_present %}
-                                                    <th class="text-center invoice-balance-col">INVOICE BALANCE</th>
+                                                    <th class="text-center invoice-balance-col">BILL BALANCE</th>
                                                 {% else %}
-                                                    <th class="text-center invoice-balance-col" style="display:none;">INVOICE BALANCE</th>
+                                                    <th class="text-center invoice-balance-col" style="display:none;">BILL BALANCE</th>
                                                 {% endif %}
                                                 {% if cnote_c_present %}
-                                                <th class="text-center available-credits-col">AVAILABLE CREDITS</th>
+                                                <th class="text-center available-credits-col">AVAILABLE DEBITS</th>
                                                     {% else %}
-                                                    <th class="text-center available-credits-col" style="display:none;">AVAILABLE CREDITS</th>
+                                                    <th class="text-center available-credits-col" style="display:none;">AVAILABLE DEBITS</th>
                                                     {% endif %}
                                                    
                                                     
@@ -317,16 +317,16 @@
                                         <div class="row p-4">
                                             <div class="col-10">
                                                 <div class="row mb-2">
-                                                    <div class="col-4">Total customers : <p style="font-size: 19px;">{{totalCustomers|default:0}}</p>
+                                                    <div class="col-4">Total Vendors : <p style="font-size: 19px;">{{totalCustomers|default:0}}</p>
                                                     </div><br><br>
                                                 </div>
                                                 <div class="row mb-2">
-                                                    <div class="col-4 ">Invoice Balance: <p id="sales" style="font-size: 19px;">₹<span id="totalInvoice">{{totalInvoice|default:0|floatformat:2 }}</span></p></div>
-                                                    <div class="col-4">Recurring Invoice Balance: <p id="purchase" style="font-size: 19px;">₹<span id="totalReccuringinvoice">{{totalRecInvoice|default:0|floatformat:2}}</span></p></div>
-                                                    <div class="col-4">Credit Note: <p id="expense" style="font-size: 19px;">₹<span id="totalCreditnote">{{totalCreditNote|default:0|floatformat:2}}</span></p></div>
+                                                    <div class="col-4 ">Bill Balance: <p id="sales" style="font-size: 19px;">₹<span id="totalInvoice">{{totalInvoice|default:0|floatformat:2 }}</span></p></div>
+                                                    <div class="col-4">Recurring Bill Balance: <p id="purchase" style="font-size: 19px;">₹<span id="totalReccuringinvoice">{{totalRecInvoice|default:0|floatformat:2}}</span></p></div>
+                                                    <div class="col-4">Debit Note: <p id="expense" style="font-size: 19px;">₹<span id="totalCreditnote">{{totalCreditNote|default:0|floatformat:2}}</span></p></div>
                                                 </div>
                                                 <div class="row mb-2">
-                                                    <div class="col-4">Total Balance:<br>(Without Credit Note)<p id="purchase" style="font-size: 19px;">₹<span id="grantTotal">{{total_invoice_balance|default:0|floatformat:2}}</span></p></div>
+                                                    <div class="col-4">Total Balance:<br>(Without Debit Note)<p id="purchase" style="font-size: 19px;">₹<span id="grantTotal">{{total_invoice_balance|default:0|floatformat:2}}</span></p></div>
                                                 </div>
                             
                                             </div>
@@ -364,7 +364,7 @@
             </div>
             <div class="modal-body">
                 <div class="card p-3">
-                    <form action="{% url 'Fin_shareCustomerBalenceReportToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
+                    <form action="{% url 'Fin_share_vendor_BalenceReportToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="emailIds">Email IDs</label>
@@ -568,7 +568,7 @@
         var opt =
         {
             margin: [0.5, 0.3, 0.3, 0.5],
-            filename: 'Report_customerbalance',
+            filename: 'Report_VendorBalance',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
@@ -594,7 +594,7 @@
         const ws = XLSX.utils.table_to_sheet(Table);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-        XLSX.writeFile(wb, "Report_CustomerBalance.xlsx");
+        XLSX.writeFile(wb, "Report_VendorBalance.xlsx");
     }
 
     let sortOrder = false; // false for ascending, true for descending
