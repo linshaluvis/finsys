@@ -742,13 +742,14 @@
                       <li><a href="{% url 'Fin_salesByItemReport' %}"><i class="bx bx-right-arrow-alt"></i>Sales By Item</a></li>
                     </ul>
                   </li>
+                  <li><a href="{% url 'alltransactions' %}"><i class="bx bx-right-arrow-alt"></i>All Transactions</a>
+
                   <li><a href=""><i class="bx bx-right-arrow-alt"></i>Purchase</a></li>
                   <ul class="px-4">
                     <li><a href="{% url 'Fin_purchase_report_vendor' %}"><i class="bx bx-right-arrow-alt"></i>Purchase by Vendor</a></li>
                     <li><a href="{% url 'Fin_purchase_report_item' %}"><i class="bx bx-right-arrow-alt"></i>Purchase By Item</a></li>
                   </ul>
-                  <li><a href=""><i class="bx bx-right-arrow-alt"></i>All Transactions
-                    </a>
+                  <li><a href="{% url 'alltransactions' %}"><i class="bx bx-right-arrow-alt"></i>All Transactions</a>
                   </li>
                   <li><a href=""><i class="bx bx-right-arrow-alt"></i>Profit and Loss</a></li>
                   <li><a href=""><i class="bx bx-right-arrow-alt"></i>Balance Sheet</a></li>
@@ -764,6 +765,8 @@
                 
                 </ul>
               </li>
+              <li id="Transactions"><a href="{% url 'alltransactions' %}"><i class="bx bx-right-arrow-alt"></i>All Transactions</a>
+
               <li id="gstreports">
                 <a><i class="bx bx-right-arrow-alt"></i>GST Reports</a>
                 <ul class="px-4">

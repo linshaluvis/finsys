@@ -907,6 +907,15 @@ urlpatterns = [
         path('Fin_vendorbalence_report_customized',views.Fin_vendorbalence_report_customized, name='Fin_vendorbalence_report_customized'),
         path('Fin_share_vendor_BalenceReportToEmail',views.Fin_share_vendor_BalenceReportToEmail, name='Fin_share_vendor_BalenceReportToEmail'),
 
+# ------------------------------------ alltransactions Report ------------------------------------
+        path('alltransactions',views.alltransactions, name='alltransactions'),
+        path('Fin_AlltransactionsCustomized',views.Fin_AlltransactionsCustomized, name='Fin_AlltransactionsCustomized'),
+        path('Fin_alltransactionReportToEmail',views.Fin_alltransactionReportToEmail, name='Fin_alltransactionReportToEmail'),
+
+
+
+
+
 
 
 
