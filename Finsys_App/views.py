@@ -35215,8 +35215,8 @@ def alltransactions(request):
      
 
         reportData = []
-        totMoneyIn = 0
-        totMoneyOut = 0
+        totMoneybal = 0
+        totMoney = 0
         bill = Fin_Purchase_Bill.objects.filter(company=cmp)
         if bill:
             for s in bill:
@@ -35227,7 +35227,8 @@ def alltransactions(request):
                 total = s.grandtotal
                 balance = s.balance
                 paid = s.paid
-                totMoneyOut += float(s.grandtotal)
+                totMoney += float(s.grandtotal)
+                totMoneybal+=float(s.balance)
 
                 details = {
                     'date': date,
@@ -35249,8 +35250,8 @@ def alltransactions(request):
                 total = s.grandtotal
                 balance = s.balance
                 paid = s.paid_off
-                totMoneyOut += float(s.grandtotal)
-                
+                totMoney += float(s.grandtotal)
+                totMoneybal+=float(s.balance)                
 
                 details = {
                     'date': date,
@@ -35272,7 +35273,8 @@ def alltransactions(request):
                 total = s.grand_total
                 balance = s.balance
                 paid = s.advanceAmount_paid
-                totMoneyOut += float(s.grand_total)
+                totMoney += float(s.grand_total)
+                totMoneybal+=float(s.balance)
 
                 details = {
                     'date': date,
@@ -35294,8 +35296,8 @@ def alltransactions(request):
                 total = d.grandtotal
                 paid =d.paid
                 balance=d.balance
-                totMoneyIn += float(d.grandtotal)
-
+                totMoney += float(d.grandtotal)
+                totMoneybal+=float(d.balance)
 
                 details = {
                     'date': date,
@@ -35317,8 +35319,8 @@ def alltransactions(request):
                 total = i.grandtotal
                 paid =i.paid_off
                 balance=i.balance
-                totMoneyIn += float(i.grandtotal)
-
+                totMoney += float(i.grandtotal)
+                totMoneybal+=float(i.balance)
                 
                 
 
@@ -35343,7 +35345,8 @@ def alltransactions(request):
                 total = r.grandtotal
                 paid =r.paid_off
                 balance=r.balance
-                totMoneyIn += float(r.grandtotal)
+                totMoney += float(r.grandtotal)
+                totMoneybal+=float(r.balance)
 
 
                 details = {
@@ -35367,9 +35370,8 @@ def alltransactions(request):
                 total = rt.Grand_total
                 paid =rt.Paid_amount
                 balance=rt.Balance
-                totMoneyIn += float(rt.Grand_total)
-
-
+                totMoney += float(rt.Grand_total)
+                totMoneybal+=float(rt.Balance)
                 details = {
                     'date': date,
                     'partyName': partyName,
@@ -35391,6 +35393,8 @@ def alltransactions(request):
                 total = s.grandtotal
                 balance = s.balance
                 paid = 0
+                totMoney += float(s.grandtotal)
+                totMoneybal+=float(s.balance)
 
                 details = {
                     'date': date,
@@ -35410,18 +35414,19 @@ def alltransactions(request):
                 ref = note.creditnote_number
                 type = 'Credit Note'
                 total = note.grandtotal
-                mOut = note.grandtotal
-                mIn = 0
-                totMoneyOut += float(note.grandtotal)
-
+                balance = note.balance
+                paid = note.paid
+                totMoney += float(note.grandtotal)
+                totMoneybal+=float(note.balance)
                 details = {
                     'date': date,
                     'partyName': partyName,
                     'ref':ref,
                     'type':type,
                     'total':total,
-                    'moneyIn':mIn,
-                    'moneyOut':mOut
+                    'paid':paid,
+                    'balance':balance
+                    
                 }
                 reportData.append(details)
         sOrder = Fin_Sales_Order.objects.filter(Company=cmp)
@@ -35434,8 +35439,8 @@ def alltransactions(request):
                 total = s.grandtotal
                 paid =s.paid_off
                 balance=s.balance
-                totMoneyIn += float(s.grandtotal)
-                
+                totMoney += float(s.grandtotal)
+                totMoneybal+=float(s.balance)
                 details = {
                     'date': date,
                     'partyName': partyName,
@@ -35456,7 +35461,6 @@ def alltransactions(request):
                 total = 0
                 paid =s.total_payment
                 balance=s.total_balance
-                totMoneyOut += float(s.total_payment)
                 details = {
                     'date': date,
                     'partyName': partyName,
@@ -35477,7 +35481,7 @@ def alltransactions(request):
                 total = s.total_amount
                 paid =s.total_payment
                 balance=s.total_balance
-                totMoneyIn += float(s.total_amount)
+              
                 details = {
                     'date': date,
                     'partyName': partyName,
@@ -35498,6 +35502,7 @@ def alltransactions(request):
                 total = s.amount
                 balance = 0
                 paid = 0
+                totMoney += float(s.amount)
 
                 details = {
                     'date': date,
@@ -35518,7 +35523,12 @@ def alltransactions(request):
                 type = 'Delivery Challan'
                 total = s.grandtotal
                 balance = s.balance
+
+
+
                 paid = 0
+                totMoney += float(s.grandtotal)
+                totMoneybal+=float(s.balance)
 
                 details = {
                     'date': date,
@@ -35533,7 +35543,7 @@ def alltransactions(request):
         
 
         context = {
-            'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData,'startDate':None, 'endDate':None, 'totalMoneyIn':totMoneyIn, 'totalMoneyOut':totMoneyOut,}
+            'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData,'startDate':None, 'endDate':None, 'totMoney':totMoney, 'totMoneybal':totMoneybal,}
         return render(request,'company/reports/Fin_alltransactions.html', context)
     else:
         return redirect('/')
@@ -35554,28 +35564,16 @@ def Fin_AlltransactionsCustomized(request):
         if request.method == 'GET':
             startDate = request.GET['from_date']
             endDate = request.GET['to_date']
-            
             type = request.GET['status']
-            print(startDate)
-            print(endDate)
-           
-            print(type)
-
-
-
             if startDate == "":
                 startDate = None
             if endDate == "":
                 endDate = None
-
-
             reportData = []
-            totMoneyIn = 0
-            totMoneyOut = 0
+            totMoneybal = 0
+            totMoney = 0
             if type == 'all':
                 bill = Fin_Purchase_Bill.objects.filter(company=cmp,bill_date__range = [startDate, endDate])
-            
-
                 if bill:
                     for s in bill:
                         partyName = s.vendor.first_name +" "+s.vendor.last_name
@@ -35585,7 +35583,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grandtotal
                         balance = s.balance
                         paid = s.paid
-                        totMoneyOut += float(s.grandtotal)
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -35596,9 +35595,8 @@ def Fin_AlltransactionsCustomized(request):
                             'paid':paid,
                             'balance':balance
                         }
-                    reportData.append(details)
+                        reportData.append(details)
                 po = Fin_Purchase_Order.objects.filter(Company=cmp,purchase_order_date__range = [startDate, endDate])
-            
                 if po:
                     for s in po:
                         partyName = s.Vendor.first_name +" "+s.Vendor.last_name
@@ -35608,8 +35606,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grandtotal
                         balance = s.balance
                         paid = s.paid_off
-                        totMoneyOut += float(s.grandtotal)
-                        
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)                
 
                         details = {
                             'date': date,
@@ -35622,7 +35620,6 @@ def Fin_AlltransactionsCustomized(request):
                         }
                         reportData.append(details)
                 recbill = Fin_Recurring_Bills.objects.filter(company=cmp,date__range = [startDate, endDate])
-            
                 if recbill:
                     for s in recbill:
                         partyName = s.vendor.first_name +" "+s.vendor.last_name
@@ -35632,7 +35629,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grand_total
                         balance = s.balance
                         paid = s.advanceAmount_paid
-                        totMoneyOut += float(s.grand_total)
+                        totMoney += float(s.grand_total)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -35645,7 +35643,6 @@ def Fin_AlltransactionsCustomized(request):
                         }
                         reportData.append(details)
                 dbNote = Fin_Debit_Note.objects.filter(Company = cmp,debit_note_date__range = [startDate, endDate])
-            
                 if dbNote:
                     for d in dbNote:
                         partyName = d.Vendor.first_name +" "+d.Vendor.last_name
@@ -35655,8 +35652,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = d.grandtotal
                         paid =d.paid
                         balance=d.balance
-                        totMoneyIn += float(d.grandtotal)
-
+                        totMoney += float(d.grandtotal)
+                        totMoneybal+=float(d.balance)
 
                         details = {
                             'date': date,
@@ -35669,7 +35666,6 @@ def Fin_AlltransactionsCustomized(request):
                         }
                         reportData.append(details)
                 inv = Fin_Invoice.objects.filter(Company = cmp,invoice_date__range = [startDate, endDate])
-            
                 if inv:
                     for i in inv:
                         partyName = i.Customer.first_name +" "+i.Customer.last_name
@@ -35679,8 +35675,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = i.grandtotal
                         paid =i.paid_off
                         balance=i.balance
-                        totMoneyIn += float(i.grandtotal)
-
+                        totMoney += float(i.grandtotal)
+                        totMoneybal+=float(i.balance)
                         
                         
 
@@ -35696,7 +35692,6 @@ def Fin_AlltransactionsCustomized(request):
                         reportData.append(details)
 
                 recInv = Fin_Recurring_Invoice.objects.filter(Company = cmp,start_date__range = [startDate, endDate])
-            
                 if recInv:
                     for r in recInv:
                         partyName = r.Customer.first_name +" "+r.Customer.last_name
@@ -35706,7 +35701,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = r.grandtotal
                         paid =r.paid_off
                         balance=r.balance
-                        totMoneyIn += float(r.grandtotal)
+                        totMoney += float(r.grandtotal)
+                        totMoneybal+=float(r.balance)
 
 
                         details = {
@@ -35721,7 +35717,6 @@ def Fin_AlltransactionsCustomized(request):
                         reportData.append(details)
 
                 rtInv = Fin_Retainer_Invoice.objects.filter(Company = cmp,Retainer_Invoice_date__range = [startDate, endDate])
-           
                 if rtInv:
                     for rt in rtInv:
                         partyName = rt.Customer.first_name +" "+rt.Customer.last_name
@@ -35731,9 +35726,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = rt.Grand_total
                         paid =rt.Paid_amount
                         balance=rt.Balance
-                        totMoneyIn += float(rt.Grand_total)
-
-
+                        totMoney += float(rt.Grand_total)
+                        totMoneybal+=float(rt.Balance)
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -35755,6 +35749,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grandtotal
                         balance = s.balance
                         paid = 0
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -35774,22 +35770,22 @@ def Fin_AlltransactionsCustomized(request):
                         ref = note.creditnote_number
                         type = 'Credit Note'
                         total = note.grandtotal
-                        mOut = note.grandtotal
-                        mIn = 0
-                        totMoneyOut += float(note.grandtotal)
-
+                        balance = note.balance
+                        paid = note.paid
+                        totMoney += float(note.grandtotal)
+                        totMoneybal+=float(note.balance)
                         details = {
                             'date': date,
                             'partyName': partyName,
                             'ref':ref,
                             'type':type,
                             'total':total,
-                            'moneyIn':mIn,
-                            'moneyOut':mOut
+                            'paid':paid,
+                            'balance':balance
+                            
                         }
                         reportData.append(details)
                 sOrder = Fin_Sales_Order.objects.filter(Company=cmp,sales_order_date__range = [startDate, endDate])
-        
                 if sOrder:
                     for s in sOrder:
                         partyName = s.Customer.first_name +" "+s.Customer.last_name
@@ -35799,8 +35795,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grandtotal
                         paid =s.paid_off
                         balance=s.balance
-                        totMoneyIn += float(s.grandtotal)
-                        
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -35821,7 +35817,6 @@ def Fin_AlltransactionsCustomized(request):
                         total = 0
                         paid =s.total_payment
                         balance=s.total_balance
-                        totMoneyOut += float(s.total_payment)
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -35842,7 +35837,7 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.total_amount
                         paid =s.total_payment
                         balance=s.total_balance
-                        totMoneyIn += float(s.total_amount)
+                    
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -35863,6 +35858,7 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.amount
                         balance = 0
                         paid = 0
+                        totMoney += float(s.amount)
 
                         details = {
                             'date': date,
@@ -35883,7 +35879,12 @@ def Fin_AlltransactionsCustomized(request):
                         type = 'Delivery Challan'
                         total = s.grandtotal
                         balance = s.balance
+
+
+
                         paid = 0
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -35895,7 +35896,7 @@ def Fin_AlltransactionsCustomized(request):
                             'balance':balance
                         }
                         reportData.append(details)
-
+            
             bill = Fin_Purchase_Bill.objects.filter(company=cmp,bill_date__range = [startDate, endDate])
             
             if type == 'Bill':
@@ -35909,7 +35910,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grandtotal
                         balance = s.balance
                         paid = s.paid
-                        totMoneyOut += float(s.grandtotal)
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -35920,7 +35922,7 @@ def Fin_AlltransactionsCustomized(request):
                             'paid':paid,
                             'balance':balance
                         }
-                    reportData.append(details)
+                        reportData.append(details)
             po = Fin_Purchase_Order.objects.filter(Company=cmp,purchase_order_date__range = [startDate, endDate])
             
             if type == 'Purchase':
@@ -35933,7 +35935,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grandtotal
                         balance = s.balance
                         paid = s.paid_off
-                        totMoneyOut += float(s.grandtotal)
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
                         
 
                         details = {
@@ -35958,7 +35961,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grand_total
                         balance = s.balance
                         paid = s.advanceAmount_paid
-                        totMoneyOut += float(s.grand_total)
+                        totMoney += float(s.grand_total)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -35982,7 +35986,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = d.grandtotal
                         paid =d.paid
                         balance=d.balance
-                        totMoneyIn += float(d.grandtotal)
+                        totMoney += float(d.grandtotal)
+                        totMoneybal+=float(d.balance)
 
 
                         details = {
@@ -36007,7 +36012,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = i.grandtotal
                         paid =i.paid_off
                         balance=i.balance
-                        totMoneyIn += float(i.grandtotal)
+                        totMoney += float(i.grandtotal)
+                        totMoneybal+=float(i.balance)
 
                         
                         
@@ -36035,7 +36041,9 @@ def Fin_AlltransactionsCustomized(request):
                         total = r.grandtotal
                         paid =r.paid_off
                         balance=r.balance
-                        totMoneyIn += float(r.grandtotal)
+                        totMoney += float(r.grandtotal)
+                        totMoneybal+=float(r.balance)
+
 
 
                         details = {
@@ -36061,7 +36069,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = rt.Grand_total
                         paid =rt.Paid_amount
                         balance=rt.Balance
-                        totMoneyIn += float(rt.Grand_total)
+                        totMoney += float(rt.Grand_total)
+                        totMoneybal+=float(rt.Balance)
 
 
                         details = {
@@ -36088,6 +36097,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grandtotal
                         balance = s.balance
                         paid = 0
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -36109,9 +36120,10 @@ def Fin_AlltransactionsCustomized(request):
                         ref = note.creditnote_number
                         type = 'Credit Note'
                         total = note.grandtotal
-                        mOut = note.grandtotal
-                        mIn = 0
-                        totMoneyOut += float(note.grandtotal)
+                        balance = note.balance
+                        paid = note.paid
+                        totMoney += float(note.grandtotal)
+                        totMoneybal+=float(note.balance)
 
                         details = {
                             'date': date,
@@ -36136,7 +36148,8 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.grandtotal
                         paid =s.paid_off
                         balance=s.balance
-                        totMoneyIn += float(s.grandtotal)
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
                         
                         details = {
                             'date': date,
@@ -36159,7 +36172,6 @@ def Fin_AlltransactionsCustomized(request):
                         total = 0
                         paid =s.total_payment
                         balance=s.total_balance
-                        totMoneyOut += float(s.total_payment)
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -36181,7 +36193,6 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.total_amount
                         paid =s.total_payment
                         balance=s.total_balance
-                        totMoneyIn += float(s.total_amount)
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -36204,6 +36215,7 @@ def Fin_AlltransactionsCustomized(request):
                         total = s.amount
                         balance = 0
                         paid = 0
+                        totMoney += float(s.amount)
 
                         details = {
                             'date': date,
@@ -36225,7 +36237,6 @@ def Fin_AlltransactionsCustomized(request):
                         type = 'Delivery Challan'
                         total = s.grandtotal
                         balance = s.balance
-                        paid = 0
 
                         details = {
                             'date': date,
@@ -36243,7 +36254,7 @@ def Fin_AlltransactionsCustomized(request):
 
 
             context = {
-                'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData, 'totalMoneyIn':totMoneyIn, 'totalMoneyOut':totMoneyOut,
+                'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData, 'totMoney':totMoney, 'totMoneybal':totMoneybal,
                 'startDate':startDate, 'endDate':endDate, 'currentDate':None,'status':type
             }
             return render(request,'company/reports/Fin_alltransactions.html', context)
@@ -36280,8 +36291,8 @@ def Fin_alltransactionReportToEmail(request):
 
 
                 reportData = []
-                totMoneyIn = 0
-                totMoneyOut = 0
+                totMoneybal = 0
+                totMoney = 0
                 bill = Fin_Purchase_Bill.objects.filter(company=cmp)
                 if bill:
                     for s in bill:
@@ -36292,7 +36303,8 @@ def Fin_alltransactionReportToEmail(request):
                         total = s.grandtotal
                         balance = s.balance
                         paid = s.paid
-                        totMoneyOut += float(s.grandtotal)
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -36314,8 +36326,8 @@ def Fin_alltransactionReportToEmail(request):
                         total = s.grandtotal
                         balance = s.balance
                         paid = s.paid_off
-                        totMoneyOut += float(s.grandtotal)
-                        
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)                
 
                         details = {
                             'date': date,
@@ -36337,7 +36349,8 @@ def Fin_alltransactionReportToEmail(request):
                         total = s.grand_total
                         balance = s.balance
                         paid = s.advanceAmount_paid
-                        totMoneyOut += float(s.grand_total)
+                        totMoney += float(s.grand_total)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -36359,8 +36372,8 @@ def Fin_alltransactionReportToEmail(request):
                         total = d.grandtotal
                         paid =d.paid
                         balance=d.balance
-                        totMoneyIn += float(d.grandtotal)
-
+                        totMoney += float(d.grandtotal)
+                        totMoneybal+=float(d.balance)
 
                         details = {
                             'date': date,
@@ -36382,8 +36395,8 @@ def Fin_alltransactionReportToEmail(request):
                         total = i.grandtotal
                         paid =i.paid_off
                         balance=i.balance
-                        totMoneyIn += float(i.grandtotal)
-
+                        totMoney += float(i.grandtotal)
+                        totMoneybal+=float(i.balance)
                         
                         
 
@@ -36408,7 +36421,8 @@ def Fin_alltransactionReportToEmail(request):
                         total = r.grandtotal
                         paid =r.paid_off
                         balance=r.balance
-                        totMoneyIn += float(r.grandtotal)
+                        totMoney += float(r.grandtotal)
+                        totMoneybal+=float(r.balance)
 
 
                         details = {
@@ -36432,9 +36446,8 @@ def Fin_alltransactionReportToEmail(request):
                         total = rt.Grand_total
                         paid =rt.Paid_amount
                         balance=rt.Balance
-                        totMoneyIn += float(rt.Grand_total)
-
-
+                        totMoney += float(rt.Grand_total)
+                        totMoneybal+=float(rt.Balance)
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -36456,6 +36469,8 @@ def Fin_alltransactionReportToEmail(request):
                         total = s.grandtotal
                         balance = s.balance
                         paid = 0
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -36475,18 +36490,19 @@ def Fin_alltransactionReportToEmail(request):
                         ref = note.creditnote_number
                         type = 'Credit Note'
                         total = note.grandtotal
-                        mOut = note.grandtotal
-                        mIn = 0
-                        totMoneyOut += float(note.grandtotal)
-
+                        balance = note.balance
+                        paid = note.paid
+                        totMoney += float(note.grandtotal)
+                        totMoneybal+=float(note.balance)
                         details = {
                             'date': date,
                             'partyName': partyName,
                             'ref':ref,
                             'type':type,
                             'total':total,
-                            'moneyIn':mIn,
-                            'moneyOut':mOut
+                            'paid':paid,
+                            'balance':balance
+                            
                         }
                         reportData.append(details)
                 sOrder = Fin_Sales_Order.objects.filter(Company=cmp)
@@ -36499,8 +36515,8 @@ def Fin_alltransactionReportToEmail(request):
                         total = s.grandtotal
                         paid =s.paid_off
                         balance=s.balance
-                        totMoneyIn += float(s.grandtotal)
-                        
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -36521,7 +36537,6 @@ def Fin_alltransactionReportToEmail(request):
                         total = 0
                         paid =s.total_payment
                         balance=s.total_balance
-                        totMoneyOut += float(s.total_payment)
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -36542,7 +36557,7 @@ def Fin_alltransactionReportToEmail(request):
                         total = s.total_amount
                         paid =s.total_payment
                         balance=s.total_balance
-                        totMoneyIn += float(s.total_amount)
+                    
                         details = {
                             'date': date,
                             'partyName': partyName,
@@ -36563,6 +36578,7 @@ def Fin_alltransactionReportToEmail(request):
                         total = s.amount
                         balance = 0
                         paid = 0
+                        totMoney += float(s.amount)
 
                         details = {
                             'date': date,
@@ -36583,7 +36599,12 @@ def Fin_alltransactionReportToEmail(request):
                         type = 'Delivery Challan'
                         total = s.grandtotal
                         balance = s.balance
+
+
+
                         paid = 0
+                        totMoney += float(s.grandtotal)
+                        totMoneybal+=float(s.balance)
 
                         details = {
                             'date': date,
@@ -36600,7 +36621,7 @@ def Fin_alltransactionReportToEmail(request):
            
 
                 
-                context = {'cmp':cmp, 'reportData':reportData, 'totalMoneyIn':totMoneyIn, 'totalMoneyOut':totMoneyOut}
+                context = {'cmp':cmp, 'reportData':reportData, 'totMoney':totMoney, 'totMoneybal':totMoneybal}
                 template_path = 'company/reports/Fin_alltransactions_pdf.html'
                 template = get_template(template_path)
 

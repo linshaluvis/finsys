@@ -87,9 +87,7 @@
                     {% if startDate and endDate %}
                     <center class="h6 text-white">{{startDate}} TO {{endDate}}</center>
                     {% endif %}
-                    {% if currentDate %}
-                    <center class="h6 text-white">{{currentDate}}</center>
-                    {% endif %}
+                    
                 </div>
                 <hr>
             <section class="mt-4">
@@ -126,12 +124,12 @@
             <hr>
             <section style="margin-top: 1rem; display: flex; justify-content: right;">
                 <div class="margin-left: 1rem;">
-                    <h5 style="padding-top: 10px; color: #000; font-size: 17px;">Total money In:</h5>
-                    <h4 style="font-size: 20px; font-weight: bold; margin-top: 5px;" id="totvalue">Rs. <span id="superTotal">{{totalMoneyIn|default:0|floatformat:2}}</span></h4>
+                    <h5 style="padding-top: 10px; color: #000; font-size: 17px;">Total Amount:</h5>
+                    <h4 style="font-size: 20px; font-weight: bold; margin-top: 5px;" id="totvalue">Rs. <span id="superTotal">{{totMoney|default:0|floatformat:2}}</span></h4>
                 </div>
                 <div class="margin-left: 1rem;">
-                    <h5 style="padding-top: 10px; color: #000; font-size: 17px;">Total money Out:</h5>
-                    <h4 style="font-size: 20px; font-weight: bold; margin-top: 5px;" id="totvalue">Rs. <span id="superTotal">{{totalMoneyOut|default:0|floatformat:2}}</span></h4>
+                    <h5 style="padding-top: 10px; color: #000; font-size: 17px;">Total Balance:</h5>
+                    <h4 style="font-size: 20px; font-weight: bold; margin-top: 5px;" id="totvalue">Rs. <span id="superTotal">{{totMoneybal|default:0|floatformat:2}}</span></h4>
                 </div>
             </section>
         </div>

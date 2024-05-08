@@ -105,9 +105,7 @@
 
     .page[size="A4"] {
         width: 99%;
-        height: 29.7cm;
         overflow: hidden;
-        overflow-y: auto;
     }
     #reportTable {
     border-collapse: collapse;
@@ -164,22 +162,7 @@
     .arrow.up {
         transform: rotate(180deg);
     }
-    /* ::-webkit-scrollbar{
-        display: none;
-    } */
-
-    .page::-webkit-scrollbar {
-    width: 8px;
-    }
-    
-    .page::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    }
-    
-    .page::-webkit-scrollbar-thumb {
-    background-color: darkgrey;
-    outline: 1px solid slategrey;
-    }
+   
 </style>
 <div class="page-content">
     <div class="card radius-15">
@@ -320,28 +303,44 @@
                                         {% endif %}
                                     </section>
                         
-                                    <section class="balance-info text-dark">
-                                        <div class="row p-4">
-                                            <div class="col-10">
-                                                <div class="row mb-2">
-                                                    <div class="col-4 font-weight-bold">Total Money In: <p style="font-size: 19px;">₹<span>{{totalMoneyIn|default:0|floatformat:2 }}</span></p></div>
-                                                </div>
-                                                <div class="row mb-2">
-                                                    <div class="col-4 font-weight-bold">Total Money Out: <p style="font-size: 19px;">₹<span>{{totalMoneyOut|default:0|floatformat:2}}</span></p></div>
-                                                </div>
-                            
+                                </section>
+                                <section class="balance-info text-dark">
+                                    <div class="row p-4">
+                                        <div class="col-10">
+                                            <div class="row mb-2">
+                                                <div class="col-4"><p style="font-size: 19px;"></p>
+                                                </div><br><br>
                                             </div>
+                                            <div class="row ">
+                                                <div class="col-4 "></div>
+                                                <div class="col-4"></div>
+                                                <div class="col-4" ><h5 style="padding-top: 23px; color: #000; font-weight: bold;">Total Amount:</h5> 
+                                                    <h4 class="text-dark" id="expense"  style="font-weight: 600;">₹<span id="totalCreditnote">{{totMoney|default:0|floatformat:2}}</span></h4></div>
+                                            </div>
+                                            
+                        
                                         </div>
-                                    </section>
-                                </div>
-                                    
+                                        <div class="col-2 text-center">
+                                            <h5 style="padding-top: 70px; color: #000; font-weight: bold;">Total Balance:</h5>
+                                            <h4 class="text-dark" style="font-weight: 600;" id="totvalue">₹<span id="superTotal">{{totMoneybal|default:0|floatformat:2}}</span></h4>
+                                        </div>
+                                    </div>
+                                </section>
+                                
+                                
+                                
+                                
+                                
+                    
                             </div>
+                                
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <!-- Share To Email Modal -->
