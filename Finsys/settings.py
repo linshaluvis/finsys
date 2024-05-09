@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Finsys_App',
     'django_social_share',
+
 ]
 
 MIDDLEWARE = [

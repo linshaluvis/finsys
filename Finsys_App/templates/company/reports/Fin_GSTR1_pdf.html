@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinsYs</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+    #table1 {
+    border-collapse: collapse;
+    width: 100%;
+    }
+
+    #table1 th, #table1 td {
+    border: 1px solid #dddddd;
+    padding: 5px 2px;
+    /* text-align: left; */
+    }
+
+    #table1 th {
+    background-color: #f2f2f2;
+    }
+    
+
+    body {
+        font-size: 14px;
+    }
+
+    .invoice_data {
+        font-size: 1.2rem;
+    }
+
+    .data_row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .data_1, .data_2 {
+        font-weight: bold;
+    }
+
+    .data_value {
+        flex: 1;
+        text-align: right;
+    }
+
+    .balance_info{
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+    .balance_info .bal_head{
+        width: 48%;
+    }
+
+    .bal_value{
+        width: 48%;
+        flex: 1;
+        text-align: right;
+    }
+
+
+
+
+
+</style>
+
+<body>
+    <div class="my-5 page" size="A4">
+        <div class="p-5">
+            <div id="ember2512" class="row tooltip-container ember-view text-ellipsis" style="display: flex; justify-content: space-between;">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <center style="color: black;">
+                        <p> {{cmp.Company_name}}</p>
+                        <b>
+                            <p style="font-size: 1.3rem;">GSTR1 REPORT</p>
+                        </b>
+                    </center>
+                    {% if startDate and endDate %}
+                    <center class="h6 text-white">{{startDate}} TO {{endDate}}</center>
+                    {% endif %}
+                   
+                </div>
+                <hr>
+            <section class="mt-4">
+                <table class="table2" id="table1">
+                    <thead>
+                        <tr class="text-center" >
+
+                            <th colspan="5" style="text-align: center;">Invoice Details</th>
+                            <th rowspan="2" style="text-align: center;">Tax Rate</th>
+                            <th rowspan="2" style="text-align: center;">Cess Rate</th>
+                            <th rowspan="2" style="text-align: center;">Taxable Value</th>
+                            <th colspan="4" style="text-align: center;">Amount</th>
+                            <th rowspan="2" style="text-align: center;">Place Of Supply(Name Of State)</th>
+                        </tr>
+                        <tr class="text-center" >
+                            <th style="text-align: center;">GSTIN/UIN</th>
+                            <th style="text-align: center;">Party Name</th>
+                            <th style="text-align: center;">Invoice No</th>
+                            <th style="text-align: center;">Date</th>
+                            <th style="text-align: center;">Value</th>
+
+                            <th style="text-align: center;">Integrated Tax</th>
+                            <th style="text-align: center;">Central Tax</th>
+                            <th style="text-align: center;">State/UT Tax</th>
+                            <th style="text-align: center;">Cess</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in reportData %}
+                        <tr class="text-center">
+                            <td>{{i.gstin}}</td>
+                            <td>{{i.partyName}}</td>
+                            <td>{{i.ref}}</td>
+                            <td>{{i.date}}</td>
+                            <td>{{i.total}}</td>
+
+                            <td>{{i.tax_amount}}</td>
+                            <td>0</td>
+                            <td>{{i.subtotal}}</td>
+
+                            <td>{{i.igst}}</td>
+                            <td>{{i.cgst}}</td>
+                            <td>{{i.sgst}}</td>
+                            <td>0</td>
+
+                            <td>{{i.place_of_supply}}</td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+              
+            </section>
+            <hr>
+            <section class="mt-4">
+                <table class="table3" id="table3">
+                    <thead>
+                        <tr class="text-center" >
+
+                            <th colspan="7" style="text-align: center;">Cr. Note Details</th>
+                            <th rowspan="2" style="text-align: center;">Tax Rate</th>
+                            <th rowspan="2" style="text-align: center;">Cess Rate</th>
+                            <th rowspan="2" style="text-align: center;">Taxable Value</th>
+                            <th colspan="4" style="text-align: center;">Amount</th>
+                            <th rowspan="2" style="text-align: center;">Place Of Supply(Name Of State)
+                            </th>
+                        </tr>
+                        <tr class="text-center" >
+                            <th rowspan="2" style="text-align: center;">GSTIN/UIN</th>
+                            <th style="text-align: center;">Party Name</th>
+                            <th style="text-align: center;">Invoice No</th>
+                            <th style="text-align: center;">Invoice Type</th>
+                            <th style="text-align: center;">Note No.</th>
+                            <th style="text-align: center;">Note Date</th>
+                            <th style="text-align: center;">Value</th>
+
+                            <th style="text-align: center;">Integrated Tax</th>
+                            <th style="text-align: center;">Central Tax</th>
+                            <th style="text-align: center;">State/UT Tax</th>
+                            <th style="text-align: center;">Cess</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in cNotedata %}
+                        <tr class="text-center">
+                            <td>{{i.gstin}}</td>
+                            <td>{{i.partyName}}</td>
+                            <td>{{i.invoice_number}}</td>
+                            <td>{{i.invoice_type}}</td>
+                            <td>{{i.ref}}</td>
+                            <td>{{i.date}}</td>
+                            <td>{{i.total}}</td>
+                            <td>{{i.tax_amount}}</td>
+                            <td>0</td>
+
+                            <td>{{i.subtotal}}</td>
+                            <td>{{ i.igst}}</td>
+                            <td>{{ i.cgst}}</td>
+                            <td>{{i.sgst}}</td>
+                            <td>0</td>
+
+                            
+
+
+
+                            <td id="sply">{{i.place_of_supply}}</td>
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+    </div>
+</body>
+
+</html>
