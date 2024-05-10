@@ -2564,6 +2564,7 @@ $(document).on("click","#saveVendorPaymentTerm",function(){
     }
 
     $(document).on("click", "#newVendorSave", function(){
+        alert("ok")
         var title = $('#vendTitle').val();
         var fName = $('#vendFirstName').val();
         var lName = $('#vendLastName').val();
@@ -2579,17 +2580,19 @@ $(document).on("click","#saveVendorPaymentTerm",function(){
         var pin = $("#vendpinco").val();
         var country = $("#vendcountry").val();
 
-        if(gstType != "Unregistered Business" && gstType != 'Overseas' && gstType != 'Consumer' && gstIN == ""){
-            alert('Fill all required fields..!')
-            return
-        }
+       // if(gstType != "Unregistered Business" && gstType != 'Overseas' && gstType != 'Consumer' && gstIN == ""){
+       //     alert('Fill all required fields..!')
+        //    return
+        //}
 
-        if(Mob.length != 10){
-            alert('Invalid Mobile Number.!')
-            return
-        }
 
-        if(fName != "" && lName != "" && placeSupply != "" && gstType != "" && panNo != "" && Email != "" && Mob != "" && street != "" && city != "" && state != "" && pin != "" && country != ""){
+       // if(Mob.length != 10){
+       //     alert('Invalid Mobile Number.!')
+        //    return
+       // }
+
+
+        //if(fName != "" && lName != "" && placeSupply != "" && gstType != "" && panNo != "" && Email != "" && Mob != "" && street != "" && city != "" && state != "" && pin != "" && country != ""){
             $.ajax({
                 type : 'POST',
                 url:"{% url 'Fin_createVendorAjax' %}",
@@ -2643,7 +2646,7 @@ $(document).on("click","#saveVendorPaymentTerm",function(){
             alert('Fill all required fields..!')
             return
         }
-    });
+    );
 
     function reloadVendor(title,fName,lName) {
         const fullName = title+' '+fName+' '+lName
