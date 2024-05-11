@@ -1,0 +1,729 @@
+{% extends 'company/Fin_base.html' %}
+{% block body %}
+{% load static %}
+{% load social_share %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.0/html2canvas.min.js"></script>
+
+
+<style>
+    .bar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+
+
+    }
+
+    /* .bar .left {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    } */
+
+    /* .bar .left input {
+        height: 5vh;
+    } */
+
+
+    .hidden {
+        display: none;
+    }
+
+    #search-dropdown {
+        position: absolute;
+    }
+
+    @media print {
+        * {
+            background: transparent !important;
+            color: #000 !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            font-size: 100%;
+
+        }
+
+        .bar,
+        #nav1,
+        header {
+            display: none;
+        }
+
+        #div2 {
+            position: absolute;
+            top: -100px;
+            text-align: center;
+            width: 100%;
+        }
+
+
+    }
+    #customizeMenu{
+        width: fit-content;
+        height: 50vh;
+        overflow-y: auto;
+    }
+
+    :root {
+        --body-bg: rgb(204, 204, 204);
+        --white: #ffffff;
+        --darkWhite: #ccc;
+        --black: #000000;
+        --dark: #615c60;
+        --themeColor: #22b8d1;
+        --pageShadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+    }
+    @media print {
+        body{
+            visibility: hidden !important;
+            /* background-color: white; */
+        }
+
+        .printContainer {
+            visibility: visible !important;
+            position: absolute;
+            z-index: 99999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: large;
+        }
+
+    }
+
+    .page {
+        background: var(--white);
+        display: block;
+        margin: 0 auto;
+        position: relative;
+        box-shadow: var(--pageShadow);
+    }
+
+    .page[size="A4"] {
+        width: 99%;
+        overflow: hidden;
+    }
+    #myTable {
+    border-collapse: collapse;
+    width: 100%;
+    }
+
+    #myTable th, #myTable td {
+    border: 1px solid #dddddd;
+    padding: 5px 2px;
+    color: #000;
+    }
+    #myTable2 {
+        border-collapse: collapse;
+        width: 100%;
+        }
+    
+        #myTable2 th, #myTable2 td {
+        border: 1px solid #dddddd;
+        padding: 5px 2px;
+        color: #000;
+        }
+
+    /* .whatsapp-this{
+      display: flex;
+      justify-content: center;
+      cursor: pointer;
+      padding: 4px 0px;
+    }
+
+    .whatsapp-this:hover{
+      background-color: rgb(255 255 255 / 0.21);
+    } */
+
+    .submitShareEmailBtn {
+        background: #192d3e;
+        border: 1px solid #3a4b5a;
+        border-radius: 4px;
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+    }
+    .submitShareEmailBtn:hover {
+        background: #3a4b5a;
+    }
+
+    .content {
+        display: none;
+        position: absolute;
+        background-color: #2f516f;
+        min-width: 350px;
+        min-height: 250px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        height: fit-content;
+        z-index: 1;
+    }
+
+    .arrow {
+        /* font-size: 0.6em; */
+        cursor: pointer;
+        margin-left: 5px;
+    }
+
+    .arrow.up {
+        transform: rotate(180deg);
+    }
+    /* ::-webkit-scrollbar{
+        display: none;
+    } */
+
+    .page::-webkit-scrollbar {
+    width: 8px;
+    }
+    
+    .page::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    }
+    
+    .page::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+    }
+</style>
+<div class="page-content">
+    <div class="card radius-15">
+        <div class="card-body">
+            <div class="card-title" id="div2">
+                <center>
+                    <!-- <h5 style="padding-top: 10px;">{{cmp.Company_name}}</h5> -->
+                    <h2 class="text-uppercase" id="headline">GSTR-2 REPORT</h2>
+                    <div class="display">
+                        <div id="d1" style="display: inline-block;"></div>
+                        <div id="d2" style="display: inline-block;"></div>
+                    </div>
+                </center>
+                <hr>
+            </div>
+            <div class="bar">
+
+                <div class=" left d-flex justify-content-start">
+                    <div class="position-relative mr-2">
+                        <button class="btn btn-secondary" onclick="toggleContent()"><i class="fa-solid fa-gear"></i> Customize Report</button>
+                        <div id="contentDiv" class="content">
+                            <h6>Customize Report</h6>
+                            <form action="{% url 'Fin_gstr2Customized' %}" class="form reportCustomizeForm" method="get">
+                                <div class="px-2">
+                                    <label style="text-align:left ">From</label><br>
+                                    <input name="from_date" class="inputdate form-control" type="date" id="startDate" value="{{startDate}}">
+                                </div>
+                                <div class="px-2">
+                                    <label style="text-align:left ">To</label><br>
+                                    <input name="to_date" type="date" class="inputdate form-control" id="endDate" value="{{endDate}}">
+                                </div>
+                                <div class="px-2">
+                                    <label style="text-align:left ">Status</label><br>
+                                    <select name="status" id="salesStatus" class="form-control">
+                                        <option value="all">All</option>
+                                        <option value="with GSTIN">with GSTIN</option>
+                                        <option value="without GSTIN">without GSTIN</option>
+                                       
+                                    </select>
+                                </div>
+                                <div class="d-flex px-2 mt-3 mb-4">
+                                    <button type="submit" class="btn btn-outline-light w-50">Run Report</button>
+                                    <button type="reset" onclick="toggleContent()" class="btn btn-outline-light ml-1 w-50">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- <div class="search">
+                        <input type="text" id="search" class="form-control" placeholder="Search.." autocomplete="off"/>
+                    </div> -->
+
+                </div>
+                <div class="right d-flex">
+
+                    <!-- <button class="btn btn_pdf btn-outline-info" id="btn-pdf">pdf</button>
+                    <button class="btn btn_print btn-outline-info" onclick="window.print()">Print</button>
+                    <button class=" btn btn-outline-info" id="export-button" onclick="exportAsExcel()">Excel</button> -->
+                    <a class="btn btn-outline-secondary  text-grey fa fa-file" role="button" id="pdfBtn" onclick="reportPDF()"> &nbsp;PDF</a> 
+                    <a class="ml-2 btn btn_print btn-outline-secondary text-grey fa fa-print" role="button" id="printBtn" onclick="printDivs()">&nbsp;Print</a>
+                    <a class="ml-2 btn btn-outline-secondary text-grey fa fa-table" role="button" id="export-button" onclick="exportAsExcel()">&nbsp;Export</a>
+                    <div class="dropdown p-0 nav-item"  id="shareBtn">
+                        <li  class="ml-2 dropdown-toggle btn btn-outline-secondary text-grey fa fa-share-alt" data-toggle="dropdown">&nbsp;Share</li>
+                        <ul class="dropdown-menu" style="background-color: black;" id="listdiv">
+                            <li style="text-align: center;" >{% post_to_whatsapp object_or_url "WhatsApp" %}</li>
+                            <li style="text-align: center;color: #e5e9ec; cursor: pointer;" id="toggleEmailModal">Email</li>
+                        </ul>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    
+    <script>
+        function reportPDF(){
+       
+            var element = document.getElementById('printReport');
+            var opt =
+            {
+                margin: [0.5, 0.3, 0.3, 0.5],
+                filename: 'gstr2' ,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'cm', format: 'a3', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+   
+</script>
+       
+
+    <script>
+        var activatedTabId = 1;
+        $(document).ready(function () {
+            $('ul.nav-tabs a[data-toggle="tab"]').on('shown.bs.tab', function (event) {
+                // Get the ID of the activated tab
+                activatedTabId = $(event.target).attr('href').substring(1);
+                console.log('Activated tab ID:', activatedTabId);
+            });
+        });
+        function printDivs() {
+            $(document).ready(function () {
+                $('ul.nav-tabs a[data-toggle="tab"]').on('shown.bs.tab', function (event) {
+                    // Get the ID of the activated tab
+                    activatedTabId = $(event.target).attr('href').substring(1);
+                    console.log('Activated tab ID:', activatedTabId);
+                });
+            });
+            var id = activatedTabId
+
+            const pdfCard = document.getElementById(id).cloneNode(true);
+            pdfCard.style.color = 'black';
+            pdfCard.style.backgroundColor = 'white';
+            // Create a new window for printing
+            const printWindow = window.open('', '');
+            const pageTitle = printWindow.document.createElement('h1');
+            pageTitle.style.textAlign = "center";
+            pageTitle.style.color = "black";
+            pageTitle.textContent = 'GSTR2';
+            const h1Element = printWindow.document.createElement('h2');
+            h1Element.style.color = "black";
+            h1Element.textAlign = "center";
+            h1Element.textContent = 'GSTR2';
+            // var printContent = document.getElementById(id).innerHTML;
+
+            // var originalContents = document.body.innerHTML;
+            // var containerDiv = document.createElement("div");
+            // containerDiv.style.textAlign = "center";
+            // var h1Element = document.createElement("h2");
+            // var h2Element = document.createElement("h1");
+            // h2Element.textContent = "GSTR1 REPORT"
+            if (id == '1') {
+                h1Element.textContent = "Purchase";
+            }
+            else {
+                h1Element.textContent = "Purchase Return";
+            }
+
+
+            var styleElement = document.createElement("style");
+            styleElement.textContent = `
+    
+    body {
+        background-color: #333;
+        color : black;
+        font-family: Arial, sans-serif;
+        /* Add more styles as needed */
+    }
+    h2,h1 {
+        color: #333;
+        /* Add more styles as needed */
+    }
+`;
+
+
+            // Append the <h2> element and style element to the containerDiv
+            printWindow.document.body.appendChild(pageTitle);
+            printWindow.document.body.appendChild(h1Element);
+
+            // Append the cloned 'pdf-card' div to the new window
+            printWindow.document.body.appendChild(pdfCard);
+
+            // Ensure the styles are preserved by copying CSS from the original document
+            const stylesheets = document.styleSheets;
+            for (let i = 0; i < stylesheets.length; i++) {
+                const stylesheet = stylesheets[i];
+                if (stylesheet.href) {
+                    const link = printWindow.document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = stylesheet.href;
+                    printWindow.document.head.appendChild(link);
+                }
+            }
+
+            // Trigger the print dialog for the new window
+            printWindow.print();
+
+            // Close the new window after printing
+            printWindow.close();
+            // activatedTabId=1;
+        }
+
+    </script>
+
+    <script>
+        function exportAsExcel() {
+            const table1 = document.getElementById('myTable');
+            const table2 = document.getElementById('myTable2');
+
+            const wb = XLSX.utils.book_new();
+
+            const ws1 = XLSX.utils.table_to_sheet(table1);
+            const ws2 = XLSX.utils.table_to_sheet(table2);
+
+            XLSX.utils.book_append_sheet(wb, ws1, 'Purchase'); // Add the first sheet to the workbook
+            XLSX.utils.book_append_sheet(wb, ws2, 'Purchase return'); // Add the second sheet to the workbook
+
+            XLSX.writeFile(wb, 'gstr2.xlsx');
+        }
+
+
+    </script>
+
+
+    <div class="card radius-15 print-only" id="pdf-card">
+        <div class="card-body"  id="exTab2">
+            <div class="container-fluid">
+                <!-- <div class="search">
+                    <input type="text" id="search" class="form-control w-25" placeholder="Search.." autocomplete="off"/>
+                </div> -->
+
+                <div  id="printReport"  class="printReportTemplate" style="display: block;">
+                    <div class="my-5 page" size="A4" >
+                        <div id="printdiv2">
+                            <div class="py-4 bg-secondary" >
+                                <!-- <div id="ember2512" class="col-md-4 d-flex justify-content-start tooltip-container ember-view ribbon text-ellipsis"></div> -->
+                                <div class="col-12">
+                                        <center class="h5 text-white"><b>{{cmp.Company_name}}</b></center>
+                                        <center class="h3 text-white"><b>GSTR-2 REPORT</b></center>
+                                        {% if startDate and endDate %}
+                                        <center class="h6 text-white">{{startDate}} TO {{endDate}}</center>
+                                        {% endif %}
+                                </div>  
+                                <!-- <div class="col-md-4 d-flex justify-content-end"></div> -->
+                            </div>
+                            <div class="row px-1 py-1">
+                                <div class="col-12">
+                                    <ul class="nav nav-tabs row">
+                                        <li class="active col-6  text-dark text-center">
+                                            <a href="#1" class="text-dark" data-toggle="tab">Purchase</a>
+                                        </li>
+                                        <li class="col-6 text-dark text-center"><a href="#2" class="text-dark" data-toggle="tab">Purchase Return</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="1" data-title="Sale">
+
+                                    <section class="product-area mt-2">
+                                <table class="table table-responsive-md mt-4 table-hover" id="myTable">
+
+   
+                                <thead>
+                                    <tr class="text-center" >
+
+                                        <th colspan="5" style="text-align: center;">Bill Details</th>
+                                        <th rowspan="2" style="text-align: center;">Tax Rate</th>
+                                        <th rowspan="2" style="text-align: center;">Cess Rate</th>
+                                        <th rowspan="2" style="text-align: center;">Taxable Value</th>
+                                        <th colspan="4" style="text-align: center;">Amount</th>
+                                        <th rowspan="2" style="text-align: center;">Place Of Supply(Name Of State)</th>
+                                    </tr>
+                                    <tr class="text-center" >
+                                        <th style="text-align: center;">GSTIN/UIN</th>
+                                        <th style="text-align: center;">Party Name</th>
+                                        <th style="text-align: center;">Bill No</th>
+                                        <th style="text-align: center;">Date</th>
+                                        <th style="text-align: center;">Value</th>
+
+                                        <th style="text-align: center;">Integrated Tax</th>
+                                        <th style="text-align: center;">Central Tax</th>
+                                        <th style="text-align: center;">State/UT Tax</th>
+                                        <th style="text-align: center;">Cess</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in reportData %}
+                                    <tr class="text-center">
+                                        <td>{{i.gstin}}</td>
+                                        <td>{{i.partyName}}</td>
+                                        <td>{{i.ref}}</td>
+                                        <td>{{i.date}}</td>
+                                        <td>{{i.total}}</td>
+
+                                        <td>{{i.tax_amount}}</td>
+                                        <td>0</td>
+                                        <td>{{i.subtotal}}</td>
+
+                                        <td>{{i.igst}}</td>
+                                        <td>{{i.cgst}}</td>
+                                        <td>{{i.sgst}}</td>
+                                        <td>0</td>
+
+                                        <td>{{i.place_of_supply}}</td>
+
+                                    </tr>
+                                    {% endfor %}
+                                    
+                                </tbody>
+                            </table>
+                            <br>
+
+
+                        </div>
+                        <div class="tab-pane" id="2" data-title="Sale return">
+
+                            <table class="table2excel  table table-responsive-md mt-4 table-hover table-bordered "
+                                id="myTable2">
+                                <thead>
+                                    <tr class="text-center" >
+
+                                        <th colspan="7" style="text-align: center;">Debitnote Details</th>
+                                        <th rowspan="2" style="text-align: center;">Tax Rate</th>
+                                        <th rowspan="2" style="text-align: center;">Cess Rate</th>
+                                        <th rowspan="2" style="text-align: center;">Taxable Value</th>
+                                        <th colspan="4" style="text-align: center;">Amount</th>
+                                        <th rowspan="2" style="text-align: center;">Place Of Supply(Name Of State)
+                                        </th>
+                                    </tr>
+                                    <tr class="text-center" >
+                                        <th rowspan="2" style="text-align: center;">GSTIN/UIN</th>
+                                        <th style="text-align: center;">Party Name</th>
+                                        <th style="text-align: center;">Bill No</th>
+                                        <th style="text-align: center;">Bill Type</th>
+                                        <th style="text-align: center;">Note No.</th>
+                                        <th style="text-align: center;">Note Date</th>
+                                        <th style="text-align: center;">Value</th>
+
+                                        <th style="text-align: center;">Integrated Tax</th>
+                                        <th style="text-align: center;">Central Tax</th>
+                                        <th style="text-align: center;">State/UT Tax</th>
+                                        <th style="text-align: center;">Cess</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in cNotedata %}
+                                    <tr class="text-center">
+                                        <td>{{i.gstin}}</td>
+                                        <td>{{i.partyName}}</td>
+                                        <td>{{i.invoice_number}}</td>
+                                        <td>{{i.invoice_type}}</td>
+                                        <td>{{i.ref}}</td>
+                                        <td>{{i.date}}</td>
+                                        <td>{{i.total}}</td>
+                                        <td>{{i.tax_amount}}</td>
+                                        <td>0</td>
+
+                                        <td>{{i.subtotal}}</td>
+                                        <td>{{ i.igst}}</td>
+                                        <td>{{ i.cgst}}</td>
+                                        <td>{{i.sgst}}</td>
+                                        <td>0</td>
+
+                                        
+
+
+
+                                        <td id="sply">{{i.place_of_supply}}</td>
+                                    </tr>
+
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+<!-- Include jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function(){
+        // Add click event listener to tab anchors
+        $('.nav-tabs a').click(function(e){
+            e.preventDefault(); // Prevent default action of anchor
+
+            // Hide all tab content
+            $('.tab-pane').hide();
+
+            // Show the corresponding tab content based on href attribute
+            $($(this).attr('href')).show();
+
+            // Update active state of tabs
+            $('.nav-tabs li').removeClass('active');
+            $(this).parent('li').addClass('active');
+        });
+
+        // Show the initial active tab content
+        $('.tab-pane').hide(); // Hide all tab content initially
+        $('.nav-tabs li:first').addClass('active'); // Set the first tab as active
+        $('.tab-pane:first').show(); // Show the content of the first tab
+    });
+</script>
+
+
+
+
+<!-- Share To Email Modal -->
+<div class="modal fade" id="shareToEmail">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #213b52;">
+            <div class="modal-header">
+                <h5 class="m-3">Share Report</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card p-3">
+                    <form action="{% url 'Fin_shareGSTR2ReportToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="emailIds">Email IDs</label>
+                            <textarea class="form-control" name="email_ids" id="emailIds" rows="3" placeholder="Multiple emails can be added by separating with a comma(,)." required></textarea>
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="item_unitname">Message(optional)</label>
+                            <textarea name="email_message" id="email_message" class="form-control" cols="" rows="4" placeholder="This message will be sent along with Bill details."></textarea>
+                        </div>
+                        <input type="text" name="status" id="stat" hidden>
+                        <input type="date" name="start" id="startDt" hidden>
+                        <input type="date" name="end" id="endDt" hidden>
+                    </form>
+                </div>
+                <div class="modal-footer d-flex justify-content-center" style="border-top: 1px solid #ffffff;">
+                    <button type="submit" id="share_with_email" class="submitShareEmailBtn w-50 text-uppercase">SEND MAIL</button>
+                </div>
+            </div>
+        </div>   
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function(){
+        var stat = `{{status}}`;
+        // alert(trans)
+        if(stat != "" && stat != 'all'){
+            $('#salesStatus').val(stat)
+        }
+    });
+    var $rows = $('#reportTable tbody tr');
+    $('#search').keyup(function() {
+        var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+        
+        $rows.show().filter(function() {
+        var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+        }).hide();
+    });
+    $(document).ready(function(){
+        var trans = `{{transaction}}`;
+        // alert(trans)
+        if(trans != "" && trans != 'all'){
+            $('#salesTransactions').val(trans)
+        }
+    })
+    function toggleContent() {
+        var contentDiv = document.getElementById("contentDiv");
+        if (contentDiv.style.display === "block") {
+            contentDiv.style.display = "none";
+        } else {
+            contentDiv.style.display = "block";
+            // Position the div just below the button
+            // var buttonRect = event.target.getBoundingClientRect();
+            // contentDiv.style.top = (buttonRect.bottom + window.scrollY) + "px";
+            // contentDiv.style.left = buttonRect.left + "px";
+        }
+    }
+
+    $('#toggleEmailModal').on('click',function(){
+        var st = $('#startDate').val();
+        var end = $('#endDate').val();
+        var stat = $('#salesStatus').val();
+
+        $('#stat').val(stat)
+        $('#startDt').val(st)
+        $('#endDt').val(end)
+
+        if((st != "" && end == "") || (st == "" && end != "")){
+        alert('Please select both date inputs or select none')
+        return
+        }
+
+        $('#shareToEmail').modal('toggle');
+    });
+
+    $(document).ready(function(){
+        $('#share_with_email').on('click',function(){
+            var emailsInput = document.getElementById('emailIds');
+            var emailsString = emailsInput.value.trim();
+
+            var emails = emailsString.split(',').map(function(email) {
+                return email.trim();
+            });
+
+            var emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+
+            var invalidEmails = []
+            if(emailsString == ""){
+                alert('Enter valid email addresses..')
+            }
+            else{
+                for (var i = 0; i < emails.length; i++) {
+                    var currentEmail = emails[i];
+
+                    if (currentEmail!="" && !emailRegex.test(currentEmail)) {
+                        console.log(currentEmail + ' is invalid!');
+                        invalidEmails.push(currentEmail)
+                    }
+                }
+                
+                if(invalidEmails.length > 0){
+                    alert('Invalid emails..Please check!\n'+invalidEmails)
+                    // alert(invalidEmails)
+                }else{
+                    $('#share_to_email_form').submit();
+                }
+            }
+        })
+    });
+
+    $(document).ready(function(){
+        var date1 = "";
+        $('#startDate').on('change',function(){
+            date1 = $(this).val()
+            $('#endDate').prop('min',date1)
+            $('#endDate').prop('required',true)
+
+        })
+
+        var date2 = "";
+        $('#endDate').on('change',function(){
+            date2 = $(this).val()
+            $('#startDate').prop('max',date2)
+            $('#startDate').prop('required',true)
+        })
+    })
+
+</script>
+{% endblock %}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinsYs</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+    #table1 {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    #table1 th,
+    #table1 td {
+        text-align: center;
+    }
+
+    #table1 th {
+        background-color: #f2f2f2;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    .invoice_data {
+        font-size: 1.2rem;
+    }
+
+    .data_row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .data_1,
+    .data_2 {
+        font-weight: bold;
+    }
+
+    .data_value {
+        flex: 1;
+        text-align: right;
+    }
+
+    .balance_info {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+
+    .balance_info .bal_head {
+        width: 48%;
+    }
+
+    .bal_value {
+        width: 48%;
+        flex: 1;
+        text-align: right;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+</style>
+
+<body>
+    <div class="my-5 page">
+        <div class="p-5">
+            <div >
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <center style="color: black;">
+                        <p> {{cmp.Company_name}}</p>
+                        <b>
+                            <p style="font-size: 1.3rem;">GSTR2 REPORT </p>
+                        </b>
+                    </center>
+                    {% if startDate and endDate %}
+                    <center class="h6 text-white">{{startDate}} TO {{endDate}}</center>
+                    {% endif %}
+                </div>
+                <hr>
+                <section class="mt-4">
+                    <center style="color: black;">
+                    <h4>Bill Details</h4>
+                     </center>
+
+                    <table class="table2" id="table1">
+                        <thead>
+                           
+                            <tr>
+                                <th class="text-center">GSTIN/UIN</th>
+                                <th class="text-center">Party Name</th>
+                                <th class="text-center">Bill No</th>
+                                <th class="text-center">Date</th>
+                                <th class="text-center">Value</th>
+                                <th class="text-center">Tax Rate</th>
+                                <th class="text-center">Cess Rate</th>
+                                <th class="text-center">Taxable Value</th>
+                                <th class="text-center">Integrated Tax</th>
+                                <th class="text-center">Central Tax</th>
+                                <th class="text-center">State/UT Tax</th>
+                                <th class="text-center">Cess</th>
+                                <th class="text-center">Place Of Supply(Name Of State)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in reportData %}
+                            <tr>
+                                <td>{{i.gstin}}</td>
+                                <td>{{i.partyName}}</td>
+                                <td>{{i.ref}}</td>
+                                <td>{{i.date}}</td>
+                                <td>{{i.total}}</td>
+                                <td>{{i.tax_amount}}</td>
+                                <td>0</td>
+                                <td>{{i.subtotal}}</td>
+                                <td>{{i.igst}}</td>
+                                <td>{{i.cgst}}</td>
+                                <td>{{i.sgst}}</td>
+                                <td>0</td>
+                                <td>{{i.place_of_supply}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+                <hr>
+                <section class="mt-4">
+                    <center style="color: black;">
+                        <h4>Debit note Details</h4>
+                                        </center>
+    
+                   
+                    <table class="table2" id="table1">
+                        <thead>
+                            <tr>
+                                <th class="text-center">GSTIN/UIN</th>
+                                <th class="text-center">Party Name</th>
+                                <th class="text-center">Bill No</th>
+                                <th class="text-center">Bill Type</th>
+                                <th class="text-center">Note No.</th>
+                                <th class="text-center">Note Date</th>
+                                <th class="text-center">Tax Rate</th>
+                                <th class="text-center">Cess Rate</th>
+                                <th class="text-center">Taxable Value</th>
+                                <th class="text-center">Integrated Tax</th>
+                                <th class="text-center">Central Tax</th>
+                                <th class="text-center">State/UT Tax</th>
+                                <th class="text-center">Cess</th>
+                                <th class="text-center">Place Of Supply(Name Of State)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in cNotedata %}
+                            <tr>
+                                <td>{{i.gstin}}</td>
+                                <td>{{i.partyName}}</td>
+                                <td>{{i.invoice_number}}</td>
+                                <td>{{i.invoice_type}}</td>
+                                <td>{{i.ref}}</td>
+                                <td>{{i.date}}</td>
+                                <td>{{i.total}}</td>
+                                <td>{{i.tax_amount}}</td>
+                                <td>0</td>
+                                <td>{{i.subtotal}}</td>
+                                <td>{{ i.igst}}</td>
+                                <td>{{ i.cgst}}</td>
+                                <td>{{i.sgst}}</td>
+                                <td>0</td>
+                                <td>{{i.place_of_supply}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+                <hr>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
