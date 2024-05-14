@@ -1,4 +1,10 @@
-# ------------------------------------ gstr2 Report ------------------------------------
-        path('gstr2',views.gstr2, name='gstr2'),
-        path('Fin_gstr2Customized',views.Fin_gstr2Customized, name='Fin_gstr2Customized'),
-        path('Fin_shareGSTR2ReportToEmail',views.Fin_shareGSTR2ReportToEmail, name='Fin_shareGSTR2ReportToEmail'),
+
+# ------------------------------------ sale_summary_byHSN Report ------------------------------------
+        path('sale_summary_byHSN',views.sale_summary_byHSN, name='sale_summary_byHSN'),
+        path('Fin_saleshsnCustomized',views.Fin_saleshsnCustomized, name='Fin_saleshsnCustomized'),
+        path('Fin_sharesalesHSNDetailsReportToEmail',views.Fin_sharesalesHSNDetailsReportToEmail, name='Fin_sharesalesHSNDetailsReportToEmail'),
+
+
+
+
+

@@ -923,10 +923,10 @@ urlpatterns = [
         path('Fin_shareGSTR2ReportToEmail',views.Fin_shareGSTR2ReportToEmail, name='Fin_shareGSTR2ReportToEmail'),
 
 
-# ------------------------------------ gstr2 Report ------------------------------------
+# ------------------------------------ sale_summary_byHSN Report ------------------------------------
         path('sale_summary_byHSN',views.sale_summary_byHSN, name='sale_summary_byHSN'),
-        path('Fin_gstr2Customized',views.Fin_gstr2Customized, name='Fin_gstr2Customized'),
-        path('Fin_shareGSTR2ReportToEmail',views.Fin_shareGSTR2ReportToEmail, name='Fin_shareGSTR2ReportToEmail'),
+        path('Fin_saleshsnCustomized',views.Fin_saleshsnCustomized, name='Fin_saleshsnCustomized'),
+        path('Fin_sharesalesHSNDetailsReportToEmail',views.Fin_sharesalesHSNDetailsReportToEmail, name='Fin_sharesalesHSNDetailsReportToEmail'),
 
 
 

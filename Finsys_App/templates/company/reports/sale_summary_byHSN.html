@@ -199,7 +199,7 @@
                         <button class="btn btn-secondary" onclick="toggleContent()"><i class="fa-solid fa-gear"></i> Customize Report</button>
                         <div id="contentDiv" class="content">
                             <h6>Customize Report</h6>
-                            <form action="{% url 'Fin_recinvCustomized' %}" class="form reportCustomizeForm" method="get">
+                            <form action="{% url 'Fin_saleshsnCustomized' %}" class="form reportCustomizeForm" method="get">
                                 <div class="px-2">
                                     <label style="text-align:left ">From</label><br>
                                     <input  class="inputdate form-control" type="date"  name="start_date" id="startDate" value="{{ startDate }}">
@@ -318,8 +318,8 @@
                                                 <div class="row ">
                                                     <div class="col-4 "></div>
                                                     <div class="col-4"></div>
-                                                    <div class="col-4" ><h5 style="padding-top: 28px; color: #000; font-weight: bold;">Total  Item:</h5> 
-                                                        <h4 class="text-dark" id="expense"  style="font-weight: 600;"><span id="totalCreditnote">{{totitem|default:0}}</span></h4></div>
+                                                    <div class="col-4" ><h5 style="padding-top: 28px; color: #000; font-weight: bold;"></h5> 
+                                                        <h4 class="text-dark" id="expense"  style="font-weight: 600;"><span id="totalCreditnote"></span></h4></div>
                                                 </div>
                                                 
                             
@@ -358,7 +358,7 @@
             </div>
             <div class="modal-body">
                 <div class="card p-3">
-                    <form action="{% url 'Fin_shareREC_INVOICEDetailsReportToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
+                    <form action="{% url 'Fin_sharesalesHSNDetailsReportToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="emailIds">Email IDs</label>
@@ -499,7 +499,7 @@
         var opt =
         {
             margin: [0.5, 0.3, 0.3, 0.5],
-            filename: 'Report_Rec_Inv_Details' + date,
+            filename: 'Report_sales_summary_by_HSN',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
@@ -531,7 +531,7 @@
         const ws = XLSX.utils.table_to_sheet(Table);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-        XLSX.writeFile(wb, "Report__Rec_Inv_Details"+date+".xlsx");
+        XLSX.writeFile(wb, "Reportsales_summary_by_HSN"+".xlsx");
     }
 
     let sortOrder = false; // false for ascending, true for descending
