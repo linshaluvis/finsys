@@ -927,6 +927,15 @@ urlpatterns = [
         path('sale_summary_byHSN',views.sale_summary_byHSN, name='sale_summary_byHSN'),
         path('Fin_saleshsnCustomized',views.Fin_saleshsnCustomized, name='Fin_saleshsnCustomized'),
         path('Fin_sharesalesHSNDetailsReportToEmail',views.Fin_sharesalesHSNDetailsReportToEmail, name='Fin_sharesalesHSNDetailsReportToEmail'),
+# ------------------------------------ low stock Report ------------------------------------
+        path('Fin_lowstockDetailsReport',views.Fin_lowstockDetailsReport, name='Fin_lowstockDetailsReport'),
+        path('Fin_sharelowStockDetailsReportToEmail',views.Fin_sharelowStockDetailsReportToEmail, name='Fin_sharelowStockDetailsReportToEmail'),
+
+# ------------------------------------ discount Report ------------------------------------
+        path('Fin_sales_item_DiscountReport',views.Fin_sales_item_DiscountReport, name='Fin_sales_item_DiscountReport'),
+        path('Fin_sales_item_DiscountReportcutomized',views.Fin_sales_item_DiscountReportcutomized, name='Fin_sales_item_DiscountReportcutomized'),
+
+        path('Fin_sharesales_item_DiscountReportToEmail',views.Fin_sharesales_item_DiscountReportToEmail, name='Fin_sharesales_item_DiscountReportToEmail'),
 
 
 

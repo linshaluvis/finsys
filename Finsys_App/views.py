@@ -39213,3 +39213,474 @@ def Fin_sharesalesHSNDetailsReportToEmail(request):
             print(e)
             messages.error(request, f'{e}')
             return redirect(sale_summary_byHSN)
+        
+        
+def Fin_lowstockDetailsReport(request):
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        data = Fin_Login_Details.objects.get(id = s_id)
+        if data.User_Type == "Company":
+            com = Fin_Company_Details.objects.get(Login_Id = s_id)
+            cmp = com
+        else:
+            com = Fin_Staff_Details.objects.get(Login_Id = s_id)
+            cmp = com.company_id
+        
+        allmodules = Fin_Modules_List.objects.get(company_id = cmp,status = 'New')
+
+        items = Fin_Items.objects.filter(Company = cmp)
+
+        reportData = []
+
+        for i in items:
+            qIn = 0
+            qOut = 0
+            name = i.name
+            bQty = int(i.opening_stock)
+            pAmt = i.purchase_price
+            sAmt = i.selling_price
+            minstock=i.min_stock
+            stock_unit_rate=i.stock_unit_rate
+
+            invItems = Fin_Invoice_Items.objects.filter(Item = i)
+            recInvItems = Fin_Recurring_Invoice_Items.objects.filter(Item = i)
+            retInvItems = Fin_Retainer_Invoice_Items.objects.filter(Item = i)
+
+            if invItems:
+                for itm in invItems:
+                    qOut += int(itm.quantity)
+
+            if recInvItems:
+                for itm in recInvItems:
+                    qOut += int(itm.quantity)
+
+            if retInvItems:
+                for itm in retInvItems:
+                    qOut += int(itm.Quantity)
+
+            billItems = Fin_Purchase_Bill_Item.objects.filter(item = i)
+            recBillItems = Fin_Recurring_Bill_Items.objects.filter(items = i)
+
+            if billItems:
+                for itm in billItems:
+                    qIn += int(itm.qty)
+
+            if recBillItems:
+                for itm in recBillItems:
+                    qIn += int(itm.quantity)
+
+            closingQty = bQty - qOut + qIn
+
+            det = {
+                'name':name,
+                'minstock':minstock,
+                'stock_unit_rate':stock_unit_rate,
+              
+                'bQty':bQty,
+                
+                'cQty':closingQty
+            }
+            reportData.append(det)
+
+        context = {
+            'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData,
+            'startDate':None, 'endDate':None
+        }
+        return render(request,'company/reports/lowstock_report.html', context)
+    else:
+        return redirect('/')
+
+
+def Fin_sharelowStockDetailsReportToEmail(request):
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        data = Fin_Login_Details.objects.get(id = s_id)
+        if data.User_Type == 'Company':
+            cmp = Fin_Company_Details.objects.get(Login_Id=s_id)
+        else:
+            cmp = Fin_Staff_Details.objects.get(Login_Id = s_id).company_id
+        
+        try:
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+
+                # Split the string by commas and remove any leading or trailing whitespace
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+                # print(emails_list)
+            
+                items = Fin_Items.objects.filter(Company = cmp)
+                reportData = []
+
+                for i in items:
+                    qIn = 0
+                    qOut = 0
+                    name = i.name
+                    bQty = int(i.opening_stock)
+                    pAmt = i.purchase_price
+                    sAmt = i.selling_price
+                    minstock=i.min_stock
+                    stock_unit_rate=i.stock_unit_rate
+
+
+                    invItems = Fin_Invoice_Items.objects.filter(Item = i)
+                    recInvItems = Fin_Recurring_Invoice_Items.objects.filter(Item = i)
+                    retInvItems = Fin_Retainer_Invoice_Items.objects.filter(Item = i)
+
+                    if invItems:
+                        for itm in invItems:
+                            qOut += int(itm.quantity)
+
+                    if recInvItems:
+                        for itm in recInvItems:
+                            qOut += int(itm.quantity)
+
+                    if retInvItems:
+                        for itm in retInvItems:
+                            qOut += int(itm.Quantity)
+
+                    billItems = Fin_Purchase_Bill_Item.objects.filter(item = i)
+                    recBillItems = Fin_Recurring_Bill_Items.objects.filter(items = i)
+
+                    if billItems:
+                        for itm in billItems:
+                            qIn += int(itm.qty)
+
+                    if recBillItems:
+                        for itm in recBillItems:
+                            qIn += int(itm.quantity)
+
+                    closingQty = bQty - qOut + qIn
+
+                    det = {
+                        'name':name,
+                        'pAmount': pAmt,
+                        'sAmount':sAmt,
+                        'minstock':minstock,
+                        'stock_unit_rate':stock_unit_rate,
+                        'bQty':bQty,
+                        'qtyIn':qIn,
+                        'qtyOut':qOut,
+                        'cQty':closingQty
+                    }
+                    reportData.append(det)
+
+                context = {'cmp':cmp, 'reportData':reportData}
+                template_path = 'company/reports/Fin_LowStock_Details_Pdf.html'
+                template = get_template(template_path)
+
+                html  = template.render(context)
+                result = BytesIO()
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+                pdf = result.getvalue()
+                filename = f'Report_lowStock_Details'
+                subject = f"Report_lowStock_Details"
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached Report for - lowStock Details. \n{email_message}\n\n--\nRegards,\n{cmp.Company_name}\n{cmp.Address}\n{cmp.State} - {cmp.Country}\n{cmp.Contact}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+                email.attach(filename, pdf, "application/pdf")
+                email.send(fail_silently=False)
+
+                messages.success(request, 'Report has been shared via email successfully..!')
+                return redirect(Fin_lowstockDetailsReport)
+        except Exception as e:
+            print(e)
+            messages.error(request, f'{e}')
+            return redirect(Fin_lowstockDetailsReport)
+        
+def Fin_sales_item_DiscountReport(request):
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        data = Fin_Login_Details.objects.get(id = s_id)
+        if data.User_Type == "Company":
+            com = Fin_Company_Details.objects.get(Login_Id = s_id)
+            cmp = com
+        else:
+            com = Fin_Staff_Details.objects.get(Login_Id = s_id)
+            cmp = com.company_id
+        
+        allmodules = Fin_Modules_List.objects.get(company_id = cmp,status = 'New')
+
+        items = Fin_Items.objects.filter(Company = cmp)
+
+        reportData = []
+        totamt=0
+        totdiscount=0
+
+        for i in items:
+            qIn = 0
+            qOut = 0
+            discount=0
+            amt =0
+
+            name = i.name
+            bQty = int(i.opening_stock)
+            pAmt = i.purchase_price
+            sAmt = i.selling_price
+            minstock=i.min_stock
+            stock_unit_rate=i.stock_unit_rate
+
+            invItems = Fin_Invoice_Items.objects.filter(Item = i)
+            recInvItems = Fin_Recurring_Invoice_Items.objects.filter(Item = i)
+            retInvItems = Fin_Retainer_Invoice_Items.objects.filter(Item = i)
+
+            if invItems:
+                for itm in invItems:
+                    qOut += int(itm.quantity)
+                    discount +=itm.discount
+                    amt +=itm.total
+
+
+            if recInvItems:
+                for itm in recInvItems:
+                    qOut += int(itm.quantity)
+                    discount +=itm.discount
+                    amt +=itm.total
+
+            if retInvItems:
+                for itm in retInvItems:
+                    qOut += int(itm.Quantity)
+                    discount +=itm.discount
+                    amt +=itm.Total
+            totamt+=qOut
+            totdiscount+=discount
+            billItems = Fin_Purchase_Bill_Item.objects.filter(item = i)
+            recBillItems = Fin_Recurring_Bill_Items.objects.filter(items = i)
+
+            if billItems:
+                for itm in billItems:
+                    qIn += int(itm.qty)
+
+            if recBillItems:
+                for itm in recBillItems:
+                    qIn += int(itm.quantity)
+
+            closingQty = bQty - qOut + qIn
+            
+
+            det = {
+                'name':name,
+                'minstock':minstock,
+                'stock_unit_rate':stock_unit_rate,
+                'bQty':bQty,
+                'qtyIn':qIn,
+                'qtyOut':qOut,
+                'cQty':closingQty,
+                'discount':discount,
+                'pAmount': pAmt,
+                'sAmount':sAmt,
+                'amt':amt,
+
+
+            }
+            reportData.append(det)
+
+        context = {
+            'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData,
+            'startDate':None, 'endDate':None,'totamt':totamt,'totdiscount':totdiscount,
+        }
+        return render(request,'company/reports/Fin_sales_item_Discount.html', context)
+    else:
+        return redirect('/')
+        
+
+def Fin_sharesales_item_DiscountReportToEmail(request):
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        data = Fin_Login_Details.objects.get(id = s_id)
+        if data.User_Type == 'Company':
+            cmp = Fin_Company_Details.objects.get(Login_Id=s_id)
+        else:
+            cmp = Fin_Staff_Details.objects.get(Login_Id = s_id).company_id
+        
+        try:
+            if request.method == 'POST':
+                emails_string = request.POST['email_ids']
+
+                # Split the string by commas and remove any leading or trailing whitespace
+                emails_list = [email.strip() for email in emails_string.split(',')]
+                email_message = request.POST['email_message']
+                # print(emails_list)
+            
+                items = Fin_Items.objects.filter(Company = cmp)
+                reportData = []
+                totamt=0
+                totdiscount=0
+
+                for i in items:
+                    qIn = 0
+                    qOut = 0
+                    discount=0
+                    amt =0
+
+                    name = i.name
+                    bQty = int(i.opening_stock)
+                    pAmt = i.purchase_price
+                    sAmt = i.selling_price
+                    minstock=i.min_stock
+                    stock_unit_rate=i.stock_unit_rate
+
+                    invItems = Fin_Invoice_Items.objects.filter(Item = i)
+                    recInvItems = Fin_Recurring_Invoice_Items.objects.filter(Item = i)
+                    retInvItems = Fin_Retainer_Invoice_Items.objects.filter(Item = i)
+
+                    if invItems:
+                        for itm in invItems:
+                            qOut += int(itm.quantity)
+                            discount +=itm.discount
+                            amt +=itm.total
+
+
+                    if recInvItems:
+                        for itm in recInvItems:
+                            qOut += int(itm.quantity)
+                            discount +=itm.discount
+                            amt +=itm.total
+
+                    if retInvItems:
+                        for itm in retInvItems:
+                            qOut += int(itm.Quantity)
+                            discount +=itm.discount
+                            amt +=itm.Total
+                    totamt+=qOut
+                    totdiscount+=discount
+                    billItems = Fin_Purchase_Bill_Item.objects.filter(item = i)
+                    recBillItems = Fin_Recurring_Bill_Items.objects.filter(items = i)
+
+                    if billItems:
+                        for itm in billItems:
+                            qIn += int(itm.qty)
+
+                    if recBillItems:
+                        for itm in recBillItems:
+                            qIn += int(itm.quantity)
+
+                    closingQty = bQty - qOut + qIn
+                    
+
+                    det = {
+                        'name':name,
+                        'minstock':minstock,
+                        'stock_unit_rate':stock_unit_rate,
+                        'bQty':bQty,
+                        'qtyIn':qIn,
+                        'qtyOut':qOut,
+                        'cQty':closingQty,
+                        'discount':discount,
+                        'pAmount': pAmt,
+                        'sAmount':sAmt,
+                        'amt':amt,
+
+
+                    }
+                    reportData.append(det)
+
+
+                context = {'cmp':cmp, 'reportData':reportData,'totamt':totamt,'totdiscount':totdiscount}
+                template_path = 'company/reports/Fin_sales_item_DiscountReport_Pdf.html'
+                template = get_template(template_path)
+
+                html  = template.render(context)
+                result = BytesIO()
+                pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+                pdf = result.getvalue()
+                filename = f'Report__sales_item_Discount_Details'
+                subject = f"Report_sales_item_DiscountR_Details"
+                email = EmailMessage(subject, f"Hi,\nPlease find the attached Report for - sales item DiscountReport . \n{email_message}\n\n--\nRegards,\n{cmp.Company_name}\n{cmp.Address}\n{cmp.State} - {cmp.Country}\n{cmp.Contact}", from_email=settings.EMAIL_HOST_USER, to=emails_list)
+                email.attach(filename, pdf, "application/pdf")
+                email.send(fail_silently=False)
+
+                messages.success(request, 'Report has been shared via email successfully..!')
+                return redirect(Fin_sales_item_DiscountReport)
+        except Exception as e:
+            print(e)
+            messages.error(request, f'{e}')
+            return redirect(Fin_sales_item_DiscountReport)
+
+
+def Fin_sales_item_DiscountReportcutomized(request):
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        data = Fin_Login_Details.objects.get(id = s_id)
+        if data.User_Type == "Company":
+            com = Fin_Company_Details.objects.get(Login_Id = s_id)
+            cmp = com
+        else:
+            com = Fin_Staff_Details.objects.get(Login_Id = s_id)
+            cmp = com.company_id
+        
+        allmodules = Fin_Modules_List.objects.get(company_id = cmp,status = 'New')
+        startDate = request.GET.get('from_date', None)
+        endDate = request.GET.get('to_date', None)
+        print(startDate)
+        print(endDate)
+
+        items = Fin_Items.objects.filter(Company = cmp)
+
+        reportData = []
+        totamt=0
+        totdiscount=0
+
+        for i in items:
+            qIn = 0
+            qOut = 0
+            discount=0
+            amt =0
+
+            name = i.name
+            bQty = int(i.opening_stock)
+            pAmt = i.purchase_price
+            sAmt = i.selling_price
+            minstock=i.min_stock
+            stock_unit_rate=i.stock_unit_rate
+
+            invItems = Fin_Invoice_Items.objects.filter(Item = i,Invoice__invoice_date__range=[startDate, endDate])
+            recInvItems = Fin_Recurring_Invoice_Items.objects.filter(Item = i,RecInvoice__start_date__range=[startDate, endDate])
+            retInvItems = Fin_Retainer_Invoice_Items.objects.filter(Item = i,Ret_Inv__Retainer_Invoice_date__range=[startDate, endDate])
+            print(invItems)
+
+            if invItems:
+                for itm in invItems:
+                    qOut += int(itm.quantity)
+                    discount +=itm.discount
+                    amt +=itm.total
+
+            print(recInvItems)
+
+            if recInvItems:
+                for itm in recInvItems:
+                    qOut += int(itm.quantity)
+                    discount +=itm.discount
+                    amt +=itm.total
+            print(retInvItems)
+
+            if retInvItems:
+                for itm in retInvItems:
+                    qOut += int(itm.Quantity)
+                    discount +=itm.discount
+                    amt +=itm.Total
+            totamt+=qOut
+            totdiscount+=discount
+           
+
+            det = {
+                'name':name,
+                'minstock':minstock,
+                'stock_unit_rate':stock_unit_rate,
+                'bQty':bQty,
+                'qtyIn':qIn,
+                'qtyOut':qOut,
+                'discount':discount,
+                'sAmount':sAmt,
+                'amt':amt,
+
+
+            }
+            reportData.append(det)
+
+        context = {
+            'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data, 'reportData':reportData,
+            'startDate':startDate, 'endDate':endDate,'totamt':totamt,'totdiscount':totdiscount,
+        }
+        return render(request,'company/reports/Fin_sales_item_Discount.html', context)
+    else:
+        return redirect('/')
+        
