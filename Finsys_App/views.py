@@ -40132,3 +40132,175 @@ def Fin_sharePaymentsmadeReportToEmail(request):
             return redirect(Fin_Paymentmade_report)
             
 #End
+
+def Fin_trial_balance(request):
+    if 's_id' in request.session:
+        s_id = request.session['s_id']
+        data = Fin_Login_Details.objects.get(id=s_id)
+        if data.User_Type == "Company":
+            com = Fin_Company_Details.objects.get(Login_Id=s_id)
+            cmp = com
+        else:
+            com = Fin_Staff_Details.objects.get(Login_Id=s_id)
+            cmp = com.company_id
+        
+        allmodules = Fin_Modules_List.objects.get(company_id=cmp, status='New')
+        all_bankings = Fin_BankHolder.objects.filter(Company = cmp)
+        loan = loan_account.objects.filter(company = cmp)
+        totMoneybalLOAN = 0
+        totMoneybalEMPLOAN=0
+        TOTITEMAMT=0
+        loan = loan_account.objects.filter(company = cmp)
+        if loan:
+            for s in loan:
+                
+                balance = s.balance
+                totMoneybalLOAN+=float(s.balance)
+        employee = Employee.objects.filter(company_id=cmp)
+        EMPloan = Fin_Loan.objects.filter(company_id=cmp) 
+        if EMPloan:
+            for s in EMPloan:
+                
+                balance = s.balance
+                loan_amount=s.loan_amount
+                totMoneybalEMPLOAN+=float(s.balance)
+                
+        items = Fin_Items.objects.filter(Company = cmp)
+        for i in items:
+            
+            name = i.name
+            bQty = int(i.opening_stock)   
+            pAmt = i.purchase_price
+            totamt=bQty*pAmt
+            TOTITEMAMT+=totamt
+  
+        
+        vend = Fin_Vendors.objects.filter(Company=cmp)
+        
+        venders_data = []
+        total_balance1 = 0 
+
+        # Initialize total balance outside the loop
+        for vendr in vend:
+            vendrName = vendr.first_name +" "+vendr.last_name
+
+            PurchaseBill = Fin_Purchase_Bill.objects.filter(vendor=vendr, status='Save')
+            Recurring_Bills = Fin_Recurring_Bills.objects.filter(vendor=vendr, status='Save')
+            Debit_Note = Fin_Debit_Note.objects.filter(Vendor=vendr, status='Saved')
+            
+            bill_balance = sum(float(inv.balance) for inv in PurchaseBill)
+            recurring_bill_balance = sum(float(rec_inv.balance) for rec_inv in Recurring_Bills)
+            total_bill_balance = bill_balance + recurring_bill_balance
+            available_debits = sum(float(credit_note.balance) for credit_note in Debit_Note)
+            total_balance = total_bill_balance - available_debits            
+            # Update the total balance
+            total_balance1 += total_balance
+            venders_data.append({
+                'name': vendrName,                
+                'total_balance': total_balance,
+            })
+        cust = Fin_Customers.objects.filter(Company=cmp)
+        
+        customers_data = []
+        total_balance11 = 0 
+        
+
+        # Initialize total balance outside the loop
+        for customer in cust:
+            customerName = customer.first_name +" "+customer.last_name
+
+            invoices = Fin_Invoice.objects.filter(Customer=customer, status='Saved')
+            recurring_invoices = Fin_Recurring_Invoice.objects.filter(Customer=customer, status='Saved')
+            credit_notes = Fin_CreditNote.objects.filter(Customer=customer, status='Saved')
+            
+            invoice_balance = sum(float(inv.balance) for inv in invoices)
+            recurring_invoice_balance = sum(float(rec_inv.balance) for rec_inv in recurring_invoices)
+            total_invoice_balance = invoice_balance + recurring_invoice_balance
+            
+            available_credits = sum(float(credit_note.balance) for credit_note in credit_notes)
+            
+            total_balance = total_invoice_balance - available_credits
+            
+            # Update the total balance
+            total_balance11 += total_balance
+           
+
+
+            customers_data.append({
+                'name': customerName,                
+                'total_balance': total_balance,
+            })
+        inv = Fin_Invoice.objects.filter(Company = cmp)
+        crdNt = Fin_CreditNote.objects.filter(Company = cmp)
+        recInv = Fin_Recurring_Invoice.objects.filter(Company = cmp)
+        sordr= Fin_Sales_Order.objects.filter(Company = cmp)
+        rtInv= Fin_Retainer_Invoice.objects.filter(Company = cmp)
+        totCashIn=0
+        totCashOut=0
+        if inv:
+            for i in inv:
+                balance=i.balance
+                totCashIn += float(i.balance)  
+
+        if crdNt:
+            for cr in crdNt:
+                balance = cr.balance
+                totCashOut += float(cr.balance)
+
+
+        if recInv:
+            for rc in recInv:
+                balance = rc.balance                
+                totCashIn += float(rc.balance)
+        if sordr:
+            for so in sordr:
+                balance = so.balance      
+                totCashIn += float(so.balance)
+        if rtInv:
+            for rt in rtInv:
+                totCashIn += float(rt.Balance)
+        bill= Fin_Purchase_Bill.objects.filter(company = cmp)
+        rcrbl= Fin_Recurring_Bills.objects.filter(company = cmp)
+        pordr= Fin_Purchase_Order.objects.filter(Company = cmp)
+        dbtnt= Fin_Debit_Note.objects.filter(Company = cmp)
+        totCashOutpr=0
+        totCashIndbt=0
+        if bill:
+            for bl in bill:
+                balance = bl.balance
+                totCashOutpr += float(bl.balance)
+
+        if rcrbl:
+            for rb in rcrbl:
+                balance = rb.balance
+                totCashOutpr += float(rb.balance)
+
+        if pordr:
+            for po in pordr:
+                balance = po.balance
+                totCashOutpr += float(po.balance)
+
+        if dbtnt:
+            for db in dbtnt:
+                balance = db.balance
+                totCashIndbt += float(db.balance)
+                print(totCashIndbt)
+
+        context = {
+            'cust':cust,
+            'totCashOutsale':totCashOut,
+            'totCashInsale':totCashIn,
+            'totCashOutpr':totCashOutpr,
+            'totCashIndbt':totCashIndbt,
+            'cust': customers_data,
+            'customers': venders_data,
+            'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data,
+            'loan':totMoneybalLOAN,
+            'Itemstock':TOTITEMAMT,
+            'emploan':totMoneybalEMPLOAN,
+            'total_CUSTbalance':total_balance11,
+            'total_VENDORbalance':total_balance1,
+            }
+        return render(request,'company/reports/trialbalance.html', context)
+    else:
+        return redirect('/')
