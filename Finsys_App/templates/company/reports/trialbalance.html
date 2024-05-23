@@ -199,7 +199,7 @@
                         <button class="btn btn-secondary" onclick="toggleContent()"><i class="fa-solid fa-gear"></i> Customize Report</button>
                         <div id="contentDiv" class="content">
                             <h6>Customize Report</h6>
-                            <form action="{% url 'Fin_dayBookReportCustomized' %}" class="form reportCustomizeForm" method="get">
+                            <form action="{% url 'Fin_trial_balancecustomized' %}" class="form reportCustomizeForm" method="get">
                                 <div class="px-2">
                                     <label style="text-align:left ">From</label><br>
                                     <input name="from_date" class="inputdate form-control" type="date" id="startDate" value="{{startDate}}">
@@ -404,7 +404,7 @@
                                                                         <tr class="account">
                                                                             <td class="text-left">DEPOSITS(ASSETS)</td>
                                                                             <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
-                                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                                            <td class="text-center">{{totbankbal|default:0|floatformat:2}}</td>
                 
                                                                     </tr>
                                                                     <tr class="account">
@@ -461,14 +461,45 @@
         
                                                         </tr>
                                                         <tr class="category-heading" style="cursor:pointer;">
-                                                            <td class="text-left"><b> DIRECT EXPENSES</b></td>
+                                                            <td class="text-left"><b> EXPENSES</b></td>
+                                                            <td class="text-center">{{totalExpense|default:0|floatformat:2}}</td>
+                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+        
+                                                        </tr>
+                                                        <tr class="account" style="cursor:pointer;">
+                                                            <td class="text-left"> DIRECT EXPENCES</td>
                                                             <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
                                                             <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
         
-                                                        </tr><tr class="category-heading" style="cursor:pointer;">
-                                                            <td class="text-left"><b> INDIRECT EXPENCES</b></td>
+                                                        </tr>
+                                                        
+                                                        <tr class="account" style="cursor:pointer;">
+                                                            <td class="text-left"> INDIRECT EXPENCES</td>
                                                             <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
                                                             <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+        
+                                                        </tr>
+                                                        <tr class="account" style="cursor:pointer;">
+                                                            <td class="text-left"> DISCOUNT PAID </td>
+                                                            <td class="text-center">{{Totsalediscount|default:0|floatformat:2}}</td>
+                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+        
+                                                        </tr>
+                                                        <tr class="category-heading" style="cursor:pointer;">
+                                                            <td class="text-left"><b> INCOME</b></td>
+                                                            <td class="text-center">{{totalExpense|default:0|floatformat:2}}</td>
+                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+        
+                                                        </tr><tr class="account" style="cursor:pointer;">
+                                                            <td class="text-left"> DIRECT INCOME</td>
+                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+        
+                                                        </tr>
+                                                        <tr class="account" style="cursor:pointer;">
+                                                            <td class="text-left"> INDIRECT INCOME</td>
+                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                            <td class="text-center">{{Totpurchasediscount|default:0|floatformat:2}}</td>
         
                                                         </tr>
 
@@ -533,7 +564,7 @@
             </div>
             <div class="modal-body">
                 <div class="card p-3">
-                    <form action="{% url 'Fin_shareDayBookReportToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
+                    <form action="{% url 'Fin_shareFin_trial_balanceToEmail' %}" method="post" class="needs-validation" id="share_to_email_form">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="emailIds">Email IDs</label>
@@ -664,7 +695,7 @@
         var opt =
         {
             margin: [0.5, 0.3, 0.3, 0.5],
-            filename: 'Report_DayBook_' + date,
+            filename: 'Report_TRIAL_BALANCE_',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'cm', format: 'letter', orientation: 'portrait' }
@@ -673,7 +704,6 @@
     }
 
     function printSection(sectionId) {
-        document.body.style.backgroundColor = 'white';
         var printContents = document.getElementById(sectionId).innerHTML;
         var originalContents = document.body.innerHTML;
         var $printerDiv = $('<div class="printContainer"></div>');
@@ -696,7 +726,7 @@
         const ws = XLSX.utils.table_to_sheet(Table);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-        XLSX.writeFile(wb, "Report_DayBook_"+date+".xlsx");
+        XLSX.writeFile(wb, "Report_TRIAL_BALANCE_"+".xlsx");
     }
 
     let sortOrder = false; // false for ascending, true for descending

@@ -947,8 +947,8 @@ urlpatterns = [
 
 # ------------------------------------ trial balance Report ------------------------------------
         path('Fin_trial_balance',views.Fin_trial_balance, name='Fin_trial_balance'),
-        path('Fin_payments_madeCustomized',views.Fin_payments_madeCustomized, name='Fin_payments_madeCustomized'),
-        path('Fin_sharePaymentsmadeReportToEmail',views.Fin_sharePaymentsmadeReportToEmail, name='Fin_sharePaymentsmadeReportToEmail'),
+        path('Fin_trial_balancecustomized',views.Fin_trial_balancecustomized, name='Fin_trial_balancecustomized'),
+        path('Fin_shareFin_trial_balanceToEmail',views.Fin_shareFin_trial_balanceToEmail, name='Fin_shareFin_trial_balanceToEmail'),
 
 
 
