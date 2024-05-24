@@ -40156,6 +40156,7 @@ def Fin_trial_balance(request):
         total_balance11 = 0
         Totpurchasediscount=0
         Totsalediscount=0
+        totalSale=0
         
         trans = Fin_BankTransactions.objects.filter(company=cmp)
         exp = Fin_Expense.objects.filter(Company=cmp)
@@ -40353,6 +40354,12 @@ def Fin_trial_balance(request):
                 balance = db.balance
                 totCashIndbt += float(db.balance)
                 print(totCashIndbt)
+                
+                
+        CURRENT_ASSETS=0
+        CURRENT_ASSETS=TOTITEMAMT+totMoneybalEMPLOAN+total_balance11
+        EXPENCE=0
+        EXPENCE=totalExpense+Totsalediscount
 
         context = {
             'cust':cust,
@@ -40372,6 +40379,9 @@ def Fin_trial_balance(request):
             'totbankbal':totbankbal,
             'Totpurchasediscount':Totpurchasediscount,
             'Totsalediscount':Totsalediscount,
+            'totalSale':totalSale,
+            'CURRENT_ASSETS':CURRENT_ASSETS,
+            'EXPENCE':EXPENCE,
 
         
             }
@@ -40614,11 +40624,11 @@ def Fin_trial_balancecustomized(request):
 
             for i in customer:
                 fullname = i.first_name + ' ' + i.last_name
-                invoice = Fin_Invoice.objects.filter(Company=cmp,Customer=i)
+                invoice = Fin_Invoice.objects.filter(Company=cmp,Customer=i,invoice_date__range=[startDate, endDate])
                 
                 if invoice:
                     for inv in invoice:
-                        invitems = Fin_Invoice_Items.objects.filter(Invoice=inv,invoice_date__range=[startDate, endDate])
+                        invitems = Fin_Invoice_Items.objects.filter(Invoice=inv)
                         for dis in invitems:
                             Totsalediscount += float(dis.discount)
                     
@@ -40780,6 +40790,12 @@ def Fin_trial_balancecustomized(request):
                     balance = db.balance
                     totCashIndbt += float(db.balance)
                     print(totCashIndbt)
+            CURRENT_ASSETS=0
+            CURRENT_ASSETS=TOTITEMAMT+totMoneybalEMPLOAN+total_balance11
+            EXPENCE=0
+            EXPENCE=totalExpense+Totsalediscount
+            totalSale=0
+
             context = {
                 'cust':cust,
                 'totCashOutsale':totCashOut,
@@ -40789,8 +40805,6 @@ def Fin_trial_balancecustomized(request):
                 'cust': customers_data,
                 'customers': venders_data,
                 'allmodules':allmodules, 'com':com, 'cmp':cmp, 'data':data,
-                'startDate': startDate, 
-                'endDate': endDate,
                 'loan':totMoneybalLOAN,
                 'Itemstock':TOTITEMAMT,
                 'emploan':totMoneybalEMPLOAN,
@@ -40798,17 +40812,23 @@ def Fin_trial_balancecustomized(request):
                 'total_VENDORbalance':total_balance1,
                 'totalExpense':totalExpense,
                 'totbankbal':totbankbal,
-                 'Totpurchasediscount':Totpurchasediscount,
-            'Totsalediscount':Totsalediscount,
-                
+                'Totpurchasediscount':Totpurchasediscount,
+                'Totsalediscount':Totsalediscount,
+                'totalSale':totalSale,
+                'CURRENT_ASSETS':CURRENT_ASSETS,
+                'EXPENCE':EXPENCE,
+                'startDate': startDate, 
+                'endDate': endDate,
+
+            
                 }
+            
             return render(request,'company/reports/trialbalance.html', context)
     else:
         return redirect('/')
     
-   
-
 def Fin_shareFin_trial_balanceToEmail(request):
+       
     if 's_id' in request.session:
         s_id = request.session['s_id']
         data = Fin_Login_Details.objects.get(id = s_id)
