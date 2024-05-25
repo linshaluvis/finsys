@@ -288,7 +288,7 @@
                                                 </tr>
                                                     <tr class="sub-category">
 
-                                                        <td class="text-left">DROWINGS OF OWNER</td>
+                                                        <td class="text-left">DRAWINGS OF OWNER</td>
                                                         <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
                                                         <td class="text-center">{{loan|default:0|floatformat:2}}</td>
 
@@ -303,14 +303,14 @@
                                                     <td class="text-left"><b>LOANS</b></td>
                                                     <td class="text-center">{{ totalSale | default:0 | floatformat:2  }}
                                                     </td>
-                                                    <td class="text-center">{{ loan | default:0 | floatformat:2 }}</td>
+                                                    <td class="text-center">{{ loanamt | default:0 | floatformat:2 }}</td>
 
                                                 </tr>
                                                     <tr class="sub-category">
 
                                                         <td class="text-left">BANK A/C</td>
                                                         <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
-                                                        <td class="text-center">{{loan|default:0|floatformat:2}}</td>
+                                                        <td class="text-center">{{loanbankbal|default:0|floatformat:2}}</td>
 
                                                     </tr>
                                                         <tr class="account">
@@ -322,7 +322,7 @@
                                                             <tr class="account">
                                                                 <td class="text-left">BANK LOANS</td>
                                                                 <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
-                                                                <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                                <td class="text-center">{{loan|default:0|floatformat:2}}</td>
     
                                                                 </tr>
                                                             <tr class="category-heading" style="cursor:pointer;">
@@ -350,12 +350,14 @@
         
                                                             </tr>
                                                             {% for customer in customers %}
+                                                            {% if customer.total_balance != 0 %}
 
                                                             <tr class="account category-heading">
                                                                 <td class="text-left">{{ customer.name }}</td>
                                                                 <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
                                                                 <td class="text-center">{{ customer.total_balance|default:0|floatformat:2}}</td>
-                                                            
+                                                                {% endif %}
+
                                                         </tr> 
                                                         {% endfor %}
 
@@ -409,11 +411,41 @@
                                                                 <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
                                                                 <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
                                                             </tr>
-                                                                <tr class="category-heading" style="cursor:pointer;">
+                                                            <tr class="category-heading" style="cursor:pointer;">
+                                                                <td class="text-left"><b> INCOME</b></td>
+                                                                <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                                <td class="text-center">{{Totpurchasediscount|default:0|floatformat:2}}</td>
+            
+                                                            </tr><tr class="account" style="cursor:pointer;">
+                                                                <td class="text-left"> DIRECT INCOME</td>
+                                                                <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                                <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+            
+                                                            </tr>
+                                                            <tr class="SUNDRY" style="cursor:pointer;">
+                                                                <td class="text-left"> INDIRECT INCOME</td>
+                                                                <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                                <td class="text-center">{{Totpurchasediscount|default:0|floatformat:2}}</td>
+            
+                                                            </tr>
+                                                            <tr class="account category-heading ">
+                                                                <td class="text-left"> DISCOUNT RECEIVED </td>
+                                                                <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                                <td class="text-center">{{Totpurchasediscount|default:0|floatformat:2}}</td>
+            
+                                                            </tr> 
+                                                            <tr class="category-heading SUNDRY " style="cursor:pointer;">
+                                                                <td class="text-left"><b> SALES ACCOUNTS</b></td>
+                                                                <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                                <td class="text-center">{{totCashInsale|default:0|floatformat:2}}</td>
+            
+                                                            </tr>
+                                                            
+                                                                <tr class="category-heading " style="cursor:pointer;">
                                                                     <td class="text-left"><b> CURRENT ASSETS</b></td>
                                                                     <td class="text-center"> {{ CURRENT_ASSETS | default:0 | floatformat:2  }}
                                                                          </td>
-                                                                    <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                                    <td class="text-center">{{totbankbal|default:0|floatformat:2}}</td>
                 
                                                                 </tr>
                                                                     <tr class="sub-category">
@@ -443,9 +475,11 @@
                                                                 {% for customer in cust %}
 
                                                             <tr class="account category-heading ">
+                                                                {% if customer.total_balance != 0 %}
                                                                 <td class="text-left">{{ customer.name }}</td>
                                                                 <td class="text-center">{{ customer.total_balance|default:0|floatformat:2}}</td>
                                                                 <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                                {% endif %}
                                                             
                                                             </tr> 
                                                             {% endfor %}
@@ -494,35 +528,46 @@
         
                                                         </tr>
                                                         
-                                                        <tr class="account" style="cursor:pointer;">
+                                                        <tr class="SUNDRY" style="cursor:pointer;">
                                                             <td class="text-left"> INDIRECT EXPENCES</td>
-                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
-                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
-        
-                                                        </tr>
-                                                        <tr class="account" style="cursor:pointer;">
-                                                            <td class="text-left"> DISCOUNT PAID </td>
                                                             <td class="text-center">{{Totsalediscount|default:0|floatformat:2}}</td>
                                                             <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
         
                                                         </tr>
+                                                        <tr class="account category-heading ">
+                                                            <td class="text-left"> DISCOUNT PAID </td>
+                                                            <td class="text-center">{{Totsalediscount|default:0|floatformat:2}}</td>
+                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+        
+                                                        </tr> 
+                                                        <tr class="category-heading SUNDRY " style="cursor:pointer;">
+                                                            <td class="text-left"><b> SALES ACCOUNTS</b></td>
+                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                            <td class="text-center">{{totCashInsale|default:0|floatformat:2}}</td>
+        
+                                                        </tr>
+                                                        <tr class="category-heading " style="cursor:pointer;">
+                                                            <td class="text-left"><b>DEFFERENCE IN OPENING BALANCE</b></td>
+                                                            {% if balance  %}
+                                                            <td class="text-center">{{balance}}</td>
+                                                            {% else %}
+                                                            <td class="text-center"></td>
+                                                            {% endif %}
+                                                            {% if balance2  %}
+                                                            <td class="text-center">{{balance2}}</td>
+                                                            {% else %}
+                                                            <td class="text-center"></td>
+                                                            {% endif %}
+        
+                                                        </tr>
                                                         <tr class="category-heading" style="cursor:pointer;">
-                                                            <td class="text-left"><b> INCOME</b></td>
-                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
-                                                            <td class="text-center">{{Totpurchasediscount|default:0|floatformat:2}}</td>
-        
-                                                        </tr><tr class="account" style="cursor:pointer;">
-                                                            <td class="text-left"> DIRECT INCOME</td>
-                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
-                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
+                                                            <td class="text-left"><b> TOTAL AMOUNT</b></td>
+                                                           
+                                                            <td class="text-center"><b>{{debit|floatformat:2}}</b></td>
+                                                            <td class="text-center"><b>{{credit|floatformat:2}}</b></td>
         
                                                         </tr>
-                                                        <tr class="account" style="cursor:pointer;">
-                                                            <td class="text-left"> INDIRECT INCOME</td>
-                                                            <td class="text-center">{{totalSale|default:0|floatformat:2}}</td>
-                                                            <td class="text-center">{{Totpurchasediscount|default:0|floatformat:2}}</td>
-        
-                                                        </tr>
+                                                       
 
                                                            
                                                        
@@ -535,12 +580,21 @@
                                         <div class="row p-4">
                                             <div class="col-10">
                                                 <div class="row mb-2">
-                                                    <div class="col-4 font-weight-bold"> <p style="font-size: 19px;"></p></div>
+                                                    <div class="col-4"><p style="font-size: 19px;"></p>
+                                                    </div><br><br>
                                                 </div>
-                                                <div class="row mb-2">
-                                                    <div class="col-4 font-weight-bold"> <p style="font-size: 19px;"></span></p></div>
+                                                <div class="row ">
+                                                    <div class="col-4 "></div>
+                                                    <div class="col-4"></div>
+                                                    <div class="col-4" > 
+                                                       </div>
                                                 </div>
+                                                
                             
+                                            </div>
+                                            <div class="col-2 text-center">
+                                                {% comment %} <h5 style="padding-top: 70px; color: #000; font-weight: bold;"> Total Amount :</h5>
+                                                <h4 class="text-dark" style="font-weight: 600;" id="totvalue">₹<span id="superTotal">{{totamount|default:0|floatformat:2}}</span></h4> {% endcomment %}
                                             </div>
                                         </div>
                                     </section>

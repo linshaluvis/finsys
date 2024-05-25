@@ -40157,17 +40157,50 @@ def Fin_trial_balance(request):
         Totpurchasediscount=0
         Totsalediscount=0
         totalSale=0
+        loantransbal=0
+        loanbankbal=0
         
-        trans = Fin_BankTransactions.objects.filter(company=cmp)
-        exp = Fin_Expense.objects.filter(Company=cmp)
+        # trans = Fin_BankTransactions.objects.filter(company=cmp)
         loan = loan_account.objects.filter(company = cmp)
         EMPloan = Fin_Loan.objects.filter(company_id=cmp)
+        # loantrans = loan_transaction.objects.filter(company=cmp)
+        all_bankings = Fin_Banking.objects.filter(company = cmp)
+        for i in all_bankings:
+
+            balance = i.current_balance
+            print(balance)
+            loanbankbal +=float( i.current_balance)
+            print(loanbankbal)
+        # for i in loantrans:
+
+        #     balance = i.balance
+        #     loantransbal +=float( i.balance)
+        # for i in trans:
+        #     balance = i.current_balance
+        #     totbankbal += float(i.current_balance)
+        
+        if loan:
+            for s in loan:  
+                balance = s.balance
+                print(balance)
+                totMoneybalLOAN += float(s.balance)
+                print(totMoneybalLOAN)
+        if EMPloan:
+            for s in EMPloan:    
+                balance = s.balance
+                loan_amount=s.loan_amount
+                totMoneybalEMPLOAN+=float(s.balance) 
+            
+        exp = Fin_Expense.objects.filter(Company=cmp)
         items = Fin_Items.objects.filter(Company = cmp)
         vend = Fin_Vendors.objects.filter(Company=cmp)
         cust = Fin_Customers.objects.filter(Company=cmp)
         customer = Fin_Customers.objects.filter(Company=cmp)
         vendor = Fin_Vendors.objects.filter(Company=cmp)
-        
+        if exp:
+            for ex in exp:
+                totalExpense += float(ex.amount)
+
 
         for i in customer:
             fullname = i.first_name + ' ' + i.last_name
@@ -40234,21 +40267,7 @@ def Fin_trial_balance(request):
 
 
             
-        for i in trans:
-            balance = i.current_balance
-            totbankbal += float(i.current_balance)
-        if exp:
-            for ex in exp:
-                totalExpense += float(ex.amount)
-        if loan:
-            for s in loan:  
-                balance = s.balance
-                totMoneybalLOAN+=float(s.balance)
-        if EMPloan:
-            for s in EMPloan:    
-                balance = s.balance
-                loan_amount=s.loan_amount
-                totMoneybalEMPLOAN+=float(s.balance) 
+        
         for i in items:   
             name = i.name
             bQty = int(i.opening_stock)   
@@ -40360,8 +40379,37 @@ def Fin_trial_balance(request):
         CURRENT_ASSETS=TOTITEMAMT+totMoneybalEMPLOAN+total_balance11
         EXPENCE=0
         EXPENCE=totalExpense+Totsalediscount
+        loanamt=0
+        loanamt=loanbankbal+totMoneybalLOAN
+        totcredit=loanamt+total_balance1+Totpurchasediscount+totbankbal+totCashIn+totCashIndbt
+        totdebit=CURRENT_ASSETS+totCashOut+totCashOutpr+EXPENCE
+        print(CURRENT_ASSETS)
+        print(totCashOut)
+        print(totCashOutpr)
+        print(EXPENCE)
+        print(Totsalediscount)
+        balance=0
+        balance2=0
+        print(totcredit)
+        print(totdebit)
+        totamount=0
+        totamount=totcredit+totdebit
+        if totcredit > totdebit:
+            balance = totcredit - totdebit
+            print(balance)
+            debit=balance+totdebit
+            credit=totcredit
+        else:
+            balance2 = totdebit - totcredit
+            debit=balance+totdebit
+            credit=balance2+totcredit
+            print(balance2)
+                
+        
 
         context = {
+            'debit':debit,
+            'credit':credit,
             'cust':cust,
             'totCashOutsale':totCashOut,
             'totCashInsale':totCashIn,
@@ -40382,6 +40430,14 @@ def Fin_trial_balance(request):
             'totalSale':totalSale,
             'CURRENT_ASSETS':CURRENT_ASSETS,
             'EXPENCE':EXPENCE,
+            'loantransbal':loantransbal,
+            'loanamt':loanamt,
+            'loanbankbal':loanbankbal,
+            'totcredit':totcredit,
+            'totdebit':totdebit,
+            'balance2':balance2,
+            'balance':balance,
+            'totamount':totamount,
 
         
             }
@@ -40416,6 +40472,8 @@ def Fin_trial_balancecustomized(request):
         total_balance11 = 0
         Totpurchasediscount=0
         Totsalediscount=0
+        loantransbal=0
+        loanbankbal=0
 
         if startDate is None or endDate is None:
             cash = Fin_CashInHand.objects.filter(Company = cmp)
@@ -40428,6 +40486,19 @@ def Fin_trial_balancecustomized(request):
             cust = Fin_Customers.objects.filter(Company=cmp)
             customer = Fin_Customers.objects.filter(Company=cmp)
             vendor = Fin_Vendors.objects.filter(Company=cmp)
+            loantrans = loan_transaction.objects.filter(company=cmp)
+            all_bankings = Fin_Banking.objects.filter(company = cmp)
+            for i in all_bankings:
+
+                balance = i.current_balance
+                print(balance)
+                loanbankbal +=float( i.current_balance)
+                print(loanbankbal)
+            
+            for i in loantrans:
+
+                balance = i.balance
+                loantransbal +=float( i.balance)
             
 
             for i in customer:
@@ -40615,11 +40686,16 @@ def Fin_trial_balancecustomized(request):
             loan = loan_account.objects.filter(company = cmp,date__range = [startDate, endDate])
             EMPloan = Fin_Loan.objects.filter(company_id=cmp,loan_date__range = [startDate, endDate])
             items = Fin_Items.objects.filter(Company = cmp,item_created__range = [startDate, endDate])
+            loantrans = loan_transaction.objects.filter(company=cmp, loan_date__range = [startDate, endDate])
             vend = Fin_Vendors.objects.filter(Company=cmp)
             cust = Fin_Customers.objects.filter(Company=cmp)
             customer = Fin_Customers.objects.filter(Company=cmp)
             vendor = Fin_Vendors.objects.filter(Company=cmp)
             
+            for i in loantrans:
+
+                balance = i.balance
+                loantransbal +=float( i.balance)
             
 
             for i in customer:
@@ -40794,9 +40870,38 @@ def Fin_trial_balancecustomized(request):
             CURRENT_ASSETS=TOTITEMAMT+totMoneybalEMPLOAN+total_balance11
             EXPENCE=0
             EXPENCE=totalExpense+Totsalediscount
+            loanamt=0
+            loanamt=loanbankbal+totMoneybalLOAN
+            totcredit=loanamt+total_balance1+Totpurchasediscount+totbankbal+totCashIn+totCashIndbt
+            totdebit=CURRENT_ASSETS+totCashOut+totCashOutpr+EXPENCE
+            print(CURRENT_ASSETS)
+            print(totCashOut)
+            print(totCashOutpr)
+            print(EXPENCE)
+            print(Totsalediscount)
+            balance=0
+            balance2=0
+            print(totcredit)
+            print(totdebit)
+            totamount=0
             totalSale=0
+            totamount=totcredit+totdebit
+            if totcredit > totdebit:
+                balance = totcredit - totdebit
+                print(balance)
+                debit=balance+totdebit
+                credit=totcredit
+            else:
+                balance2 = totdebit - totcredit
+                debit=balance+totdebit
+                credit=balance2+totcredit
+                print(balance2)
+                    
+            
 
             context = {
+                'debit':debit,
+                'credit':credit,
                 'cust':cust,
                 'totCashOutsale':totCashOut,
                 'totCashInsale':totCashIn,
@@ -40817,8 +40922,21 @@ def Fin_trial_balancecustomized(request):
                 'totalSale':totalSale,
                 'CURRENT_ASSETS':CURRENT_ASSETS,
                 'EXPENCE':EXPENCE,
+                'loantransbal':loantransbal,
+                'loanamt':loanamt,
+                'loanbankbal':loanbankbal,
+                'totcredit':totcredit,
+                'totdebit':totdebit,
+                'balance2':balance2,
+                'balance':balance,
+                'totamount':totamount,
+
+            
+                
                 'startDate': startDate, 
                 'endDate': endDate,
+                'loantransbal':loantransbal,
+                'loanamt':loanamt,
 
             
                 }
@@ -40866,17 +40984,51 @@ def Fin_shareFin_trial_balanceToEmail(request):
                 total_balance11 = 0
                 Totpurchasediscount=0
                 Totsalediscount=0
+                totalSale=0
+                loantransbal=0
+                loanbankbal=0
                 
-                trans = Fin_BankTransactions.objects.filter(company=cmp)
-                exp = Fin_Expense.objects.filter(Company=cmp)
+                # trans = Fin_BankTransactions.objects.filter(company=cmp)
                 loan = loan_account.objects.filter(company = cmp)
                 EMPloan = Fin_Loan.objects.filter(company_id=cmp)
+                # loantrans = loan_transaction.objects.filter(company=cmp)
+                all_bankings = Fin_Banking.objects.filter(company = cmp)
+                for i in all_bankings:
+
+                    balance = i.current_balance
+                    print(balance)
+                    loanbankbal +=float( i.current_balance)
+                    print(loanbankbal)
+                # for i in loantrans:
+
+                #     balance = i.balance
+                #     loantransbal +=float( i.balance)
+                # for i in trans:
+                #     balance = i.current_balance
+                #     totbankbal += float(i.current_balance)
+                
+                if loan:
+                    for s in loan:  
+                        balance = s.balance
+                        print(balance)
+                        totMoneybalLOAN += float(s.balance)
+                        print(totMoneybalLOAN)
+                if EMPloan:
+                    for s in EMPloan:    
+                        balance = s.balance
+                        loan_amount=s.loan_amount
+                        totMoneybalEMPLOAN+=float(s.balance) 
+                    
+                exp = Fin_Expense.objects.filter(Company=cmp)
                 items = Fin_Items.objects.filter(Company = cmp)
                 vend = Fin_Vendors.objects.filter(Company=cmp)
                 cust = Fin_Customers.objects.filter(Company=cmp)
                 customer = Fin_Customers.objects.filter(Company=cmp)
                 vendor = Fin_Vendors.objects.filter(Company=cmp)
-                
+                if exp:
+                    for ex in exp:
+                        totalExpense += float(ex.amount)
+
 
                 for i in customer:
                     fullname = i.first_name + ' ' + i.last_name
@@ -40943,21 +41095,7 @@ def Fin_shareFin_trial_balanceToEmail(request):
 
 
                     
-                for i in trans:
-                    balance = i.current_balance
-                    totbankbal += float(i.current_balance)
-                if exp:
-                    for ex in exp:
-                        totalExpense += float(ex.amount)
-                if loan:
-                    for s in loan:  
-                        balance = s.balance
-                        totMoneybalLOAN+=float(s.balance)
-                if EMPloan:
-                    for s in EMPloan:    
-                        balance = s.balance
-                        loan_amount=s.loan_amount
-                        totMoneybalEMPLOAN+=float(s.balance) 
+                
                 for i in items:   
                     name = i.name
                     bQty = int(i.opening_stock)   
@@ -41063,8 +41201,43 @@ def Fin_shareFin_trial_balanceToEmail(request):
                         balance = db.balance
                         totCashIndbt += float(db.balance)
                         print(totCashIndbt)
+                        
+                        
+                CURRENT_ASSETS=0
+                CURRENT_ASSETS=TOTITEMAMT+totMoneybalEMPLOAN+total_balance11
+                EXPENCE=0
+                EXPENCE=totalExpense+Totsalediscount
+                loanamt=0
+                loanamt=loanbankbal+totMoneybalLOAN
+                totcredit=loanamt+total_balance1+Totpurchasediscount+totbankbal+totCashIn+totCashIndbt
+                totdebit=CURRENT_ASSETS+totCashOut+totCashOutpr+EXPENCE
+                print(CURRENT_ASSETS)
+                print(totCashOut)
+                print(totCashOutpr)
+                print(EXPENCE)
+                print(Totsalediscount)
+                balance=0
+                balance2=0
+                print(totcredit)
+                print(totdebit)
+                totamount=0
+                totamount=totcredit+totdebit
+                if totcredit > totdebit:
+                    balance = totcredit - totdebit
+                    print(balance)
+                    debit=balance+totdebit
+                    credit=totcredit
+                else:
+                    balance2 = totdebit - totcredit
+                    debit=balance+totdebit
+                    credit=balance2+totcredit
+                    print(balance2)
+                        
+                
 
                 context = {
+                    'debit':debit,
+                    'credit':credit,
                     'cust':cust,
                     'totCashOutsale':totCashOut,
                     'totCashInsale':totCashIn,
@@ -41072,11 +41245,7 @@ def Fin_shareFin_trial_balanceToEmail(request):
                     'totCashIndbt':totCashIndbt,
                     'cust': customers_data,
                     'customers': venders_data,
-                   
-                    'cmp':cmp, 
-                    'data':data,
-                    'startDate':startDate, 
-                    'endDate':endDate,
+                    'cmp':cmp, 'data':data,'startDate':None, 'endDate':None,
                     'loan':totMoneybalLOAN,
                     'Itemstock':TOTITEMAMT,
                     'emploan':totMoneybalEMPLOAN,
@@ -41086,9 +41255,21 @@ def Fin_shareFin_trial_balanceToEmail(request):
                     'totbankbal':totbankbal,
                     'Totpurchasediscount':Totpurchasediscount,
                     'Totsalediscount':Totsalediscount,
+                    'totalSale':totalSale,
+                    'CURRENT_ASSETS':CURRENT_ASSETS,
+                    'EXPENCE':EXPENCE,
+                    'loantransbal':loantransbal,
+                    'loanamt':loanamt,
+                    'loanbankbal':loanbankbal,
+                    'totcredit':totcredit,
+                    'totdebit':totdebit,
+                    'balance2':balance2,
+                    'balance':balance,
+                    'totamount':totamount,
 
                 
                     }
+
 
                 template_path = 'company/reports/trialbalancepdf.html'
                 template = get_template(template_path)
